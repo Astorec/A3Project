@@ -3,17 +3,28 @@ package Classes;
 import java.util.Date;
 
 public class Permit {
-    private int id;
     private String areaCodes;
     private Date startDate;
     private Date expiryDate;
 
+    public Permit(){
 
-    public void setAreaCodes(String newAreaCodes){
-        areaCodes = newAreaCodes;
+    }
+    public Permit(String areaCodes, Date startDate, Date expiryDate) {
+        this.areaCodes = areaCodes;
+        this.startDate = startDate;
+        this.expiryDate = expiryDate;
     }
 
-    public String getAreaCodes(){
+    public String getAreaCodes() {
         return areaCodes;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
     }
 }
