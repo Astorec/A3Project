@@ -1,13 +1,13 @@
 import BPlusTree.BPlusTree;
 import Classes.PermitHolder;
+import Functions.DataOperations;
+import Functions.DebugFunctions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,12 +33,15 @@ public class Main {
                 System.out.println(entry.getKey() + ": " + entry.getValue());
             }
 
-            // Range search
-            System.out.println("Range search:");
-            List<PermitHolder> result = tree.rangeSearch(entries.stream().findFirst().get().getKey(), entries.stream().reduce((a, b) -> b).orElse(null).getKey() );
-            for (PermitHolder entry : result) {
-                System.out.println(entry.getId() + ": " + entry.getFirstName());
-            }
+
+            // Made a Debug Function to test the refactor of the code as when I tested it before when I originally
+            // refactored it, it wouldn't display the output data correctly and would just appear blank. Currently
+            // this works when out putting so I suspect changing how we store the entries or potentially when storing
+            // the tree could be causing the issue. The issue was that Leaf would return NULL when we would call
+            // entries.stream().findFirst().get().getKey() for some reason when the code was split up. So I want to go
+            // through one by one and ensure that it works as intended
+            DebugFunctions debug = new DebugFunctions();
+            debug.outputNames(tree, DataOperations.getInstance().updateEntries(entries));
 
         } catch (Exception e) {
             e.printStackTrace();

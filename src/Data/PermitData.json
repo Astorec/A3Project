@@ -1,0 +1,46 @@
+{
+  "1": {
+    "first_name": "Ross",
+    "last_name": "Anderson",
+    "address": {
+      "house_num": "24",
+      "street_name": "Mill Street",
+      "town": "Ayr",
+      "county": "South Ayrshire",
+      "post_code": "KA7 1TJ"
+    },
+    "car": {
+      "reg_num": "AK64 CXH",
+      "make": "Ford",
+      "model": "Focus",
+      "colour": "Silver"
+    },
+    "permit": {
+      "area_codes": "A1, A2, A3",
+      "start_date": "2022-11-11",
+      "expiry_date": "2023-11-11"
+    }
+  },
+  "2": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "address": {
+      "house_num": "12",
+      "street_name": "Main Street",
+      "town": "Glasgow",
+      "county": "Lanarkshire",
+      "post_code": "G1 1AB"
+    },
+    "car": {
+      "reg_num": "AB12 XYZ",
+      "make": "Toyota",
+      "model": "Yaris",
+      "colour": "Red"
+    },
+    "permit": {
+      "area_codes": "B1, B2, B3",
+      "start_date": "2022-12-01",
+      "expiry_date": "2023-12-01"
+    }
+  }
+}
