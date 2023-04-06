@@ -1,67 +1,49 @@
 package Classes;
 
-import com.google.gson.annotations.SerializedName;
+public class PermitHolder {
+    //region Properties
+    private final String id;
 
-public class PermitHolder implements Comparable<PermitHolder> {
-    @SerializedName("id")
-    private String id; // unique identifier
+    private final String first_name;
 
-    @SerializedName("first_name")
-    private String firstName;
+    private final String last_name;
 
-    @SerializedName("last_name")
-    private String lastName;
+    private final Address address;
 
-    @SerializedName("address")
-    private Address address;
+    private final Car car;
 
-    @SerializedName("car")
-    private Car car;
+    private final Permit permit;
+    //endregion
 
-    @SerializedName("permit")
-    private Permit permit;
-
-
-    // Default Constructor
-    public PermitHolder(){
-
-    }
+    //region Constructor
     public PermitHolder(String id, String firstName, String lastName, Address address, Car car, Permit permit) {
         this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.first_name = firstName;
+        this.last_name = lastName;
         this.address = address;
         this.car = car;
         this.permit = permit;
     }
+    //endregion
 
+    //region Getters
     public String getId() {
         return id;
     }
-
-    public String getFirstName() {
-        return firstName;
+    public String getFirst_name() {
+        return first_name;
     }
-
-    public String getLastName() {
-        return lastName;
+    public String getLast_name() {
+        return last_name;
     }
-
     public Address getAddress() {
         return address;
     }
-
     public Car getCar() {
         return car;
     }
-
     public Permit getPermit() {
         return permit;
     }
-
-    // Implement compareTo method to allow PermitHolder objects to be compared and sorted by their id
-    @Override
-    public int compareTo(PermitHolder other) {
-        return this.id.compareTo(other.id);
-    }
+    //endregion
 }

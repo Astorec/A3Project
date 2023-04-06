@@ -1,40 +1,49 @@
 package Classes;
 
 public class Address {
-    private String houseNum;
-    private String streetName;
-    private String town;
-    private String county;
-    private String postCode;
+    //region Properties
+    private final String house_num;
+    private final String street_name;
+    private final String town;
+    private final String county;
+    private final String post_code;
+    //endregion
 
-    public Address(){
-
-    }
+    //region Constructor
     public Address(String houseNum, String streetName, String town, String county, String postCode) {
-        this.houseNum = houseNum;
-        this.streetName = streetName;
+        this.house_num = houseNum;
+        this.street_name = streetName;
         this.town = town;
         this.county = county;
-        this.postCode = postCode;
+        this.post_code = postCode;
+    }
+    //endregion
+
+    //region Getters
+    private String getHouse_num() {
+        return house_num;
     }
 
-    public String getHouseNum() {
-        return houseNum;
+    private String getStreet_name() {
+        return street_name;
     }
 
-    public String getStreetName() {
-        return streetName;
-    }
-
-    public String getTown() {
+    private String getTown() {
         return town;
     }
 
-    public String getCounty() {
+    private String getCounty() {
         return county;
     }
 
-    public String getPostCode() {
-        return postCode;
+    private String getPost_code() {
+        return post_code;
     }
+    //endregion
+
+    //region To String
+    public String toString() {
+        return "Address: " + this.getHouse_num() + " " + this.getStreet_name() + " " + this.getTown() + " " + this.getCounty() + " " + this.getPost_code();
+    }
+    //endregion
 }
