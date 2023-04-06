@@ -1,34 +1,43 @@
 package Classes;
 
 public class Car {
-    private String regNum;
-    private String make;
-    private String model;
-    private String colour;
+    //region Properties
+    private final String reg_num;
+    private final String make;
+    private final String model;
+    private final String colour;
+    //endregion
 
-    public Car(){
-
-    }
+    //region Constructor
     public Car(String regNum, String make, String model, String colour) {
-        this.regNum = regNum;
+        this.reg_num = regNum;
         this.make = make;
         this.model = model;
         this.colour = colour;
     }
+    //endregion
 
-    public String getRegNum() {
-        return regNum;
+    //region Getters
+    private String getReg_num() {
+        return reg_num;
     }
 
-    public String getMake() {
+    private String getMake() {
         return make;
     }
 
-    public String getModel() {
+    private String getModel() {
         return model;
     }
 
-    public String getColour() {
+    private String getColour() {
         return colour;
     }
+    //endregion
+
+    //region To String
+    public String toString() {
+        return "Reg Number: " + this.getReg_num() + " Make: " + this.getMake() + " Model: " + this.getModel() + " Colour: " + this.getColour();
+    }
+    //endregion
 }
