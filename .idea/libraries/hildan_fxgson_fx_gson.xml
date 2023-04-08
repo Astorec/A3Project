@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="hildan.fxgson.fx.gson" type="repository">
+    <properties maven-id="org.hildan.fxgson:fx-gson:5.0.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/hildan/fxgson/fx-gson/5.0.0/fx-gson-5.0.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.10/gson-2.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/annotations/23.0.0/annotations-23.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

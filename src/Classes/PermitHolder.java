@@ -2,17 +2,17 @@ package Classes;
 
 public class PermitHolder {
     //region Properties
-    private final String id;
+    private String id;
 
-    private final String first_name;
+    private String first_name;
 
-    private final String last_name;
+    private String last_name;
 
-    private final Address address;
+    private Address address;
 
-    private final Car car;
+    private Car car;
 
-    private final Permit permit;
+    private Permit permit;
     //endregion
 
     //region Constructor
@@ -30,18 +30,23 @@ public class PermitHolder {
     public String getId() {
         return id;
     }
+
     public String getFirst_name() {
         return first_name;
     }
+
     public String getLast_name() {
         return last_name;
     }
+
     public Address getAddress() {
         return address;
     }
+
     public Car getCar() {
         return car;
     }
+
     public Permit getPermit() {
         return permit;
     }

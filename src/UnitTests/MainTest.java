@@ -1,17 +1,17 @@
-import Classes.PermitHolder;
+package UnitTests;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.application.Application;
+import javafx.stage.Stage;
+import org.junit.Test;
+import org.testfx.api.FxAssert;
+import org.testfx.framework.junit.ApplicationTest;
 
-import java.util.HashMap;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Main extends Application {
+class MainTest extends ApplicationTest {
 
-    //region FXML Start Method
-
-    // Used to create our Scene from the FXML and load the initial Main Page
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PermitViews/MainPageView.fxml"));
@@ -21,11 +21,10 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
-    //endregion
 
-    //region Main Method
-    public static void main(String[] args) {
-        launch(args);
+    @Test
+    public void dataRemoved(){
+
     }
-    //endregion
+
 }

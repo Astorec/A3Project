@@ -39,5 +39,9 @@ public class Car {
     public String toString() {
         return "Reg Number: " + this.getReg_num() + " Make: " + this.getMake() + " Model: " + this.getModel() + " Colour: " + this.getColour();
     }
+
+    public String sendRegNum(){
+        return getReg_num();
+    }
     //endregion
 }

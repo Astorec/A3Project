@@ -43,7 +43,7 @@ public class Address {
 
     //region To String
     public String toString() {
-        return "Address: " + this.getHouse_num() + " " + this.getStreet_name() + " " + this.getTown() + " " + this.getCounty() + " " + this.getPost_code();
+        return this.getHouse_num() + " " + this.getStreet_name() + "\n" + this.getTown() + "\n" + this.getCounty() + "\n" + this.getPost_code();
     }
     //endregion
 }
