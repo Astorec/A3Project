@@ -1,31 +1,26 @@
 package PermitViews;
 
 import Classes.PermitHolder;
+import Functions.FilterData;
 import Functions.LoadPermitData;
-import com.google.gson.Gson;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
-import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MainPageController {
 
 
     //region FXML Properties
     @FXML
-    private AnchorPane filtterAnchorPane;
+    AnchorPane filterAnchorPane;
     @FXML
     TableView<Map.Entry<String, PermitHolder>> permitDataTable;
     @FXML
@@ -47,6 +42,7 @@ public class MainPageController {
     //region Properties
     private HashMap<String, PermitHolder> permitHolderMap;
     private ObservableList<Map.Entry<String, PermitHolder>> permits;
+    private Boolean isFiltered = false;
     //endregion
 
     //region FXML Related Methods
@@ -67,13 +63,13 @@ public class MainPageController {
     }
     //endregion
 
-    // region FXML Handlers
+    /*
+     This contains the Handlers used with the FXML to tell the ui what to do when
+     specific elements are clicked. For example, we have  handlers to see if the
+     checkboxes are ticked so that if they are they can enable or disable the
+     text fields based on that
 
-    // This contains the Handlers used with the FXML to tell the ui what to do when
-    // specific elements are clicked. For example, we have  handlers to see if the
-    // checkboxes are ticked so that if they are they can enable or disable the
-    // text fields based on that
-
+     */
     //region Filter Handlers
     @FXML
     private void handelIDCheckBoxAction() {
@@ -113,44 +109,48 @@ public class MainPageController {
     // Reset all the filters  if the reset button is pressed
     @FXML
     private void handelResetButton() {
+
+        // Reset the checkboxes
         idCheckBox.setSelected(false);
-        idTextField.setDisable(true);
         firstNameCheckBox.setSelected(false);
-        firstNameTextField.setDisable(true);
         lastNameCheckBox.setSelected(false);
-        lastNameTextField.setDisable(true);
         addressCheckBox.setSelected(false);
-        addressTextField.setDisable(true);
         startCheckBox.setSelected(false);
-        startDate.setDisable(true);
         expiryCheckBox.setSelected(false);
+
+        // Disable the Text Fields and Date Fields
+        idTextField.setDisable(true);
+        firstNameTextField.setDisable(true);
+        lastNameTextField.setDisable(true);
+        addressTextField.setDisable(true);
+        startDate.setDisable(true);
+
+        // Reset the Text Fields and Date Fields
+        idTextField.clear();
+        firstNameTextField.clear();
+        lastNameTextField.clear();
+        addressTextField.clear();
+        startDate.getEditor().clear();
         endDate.setDisable(true);
+        endDate.getEditor().clear();
+
+        // Reset the Data View by calling the setup again
+        setupColumns();
     }
 
     @FXML
     private void handelApplyButton() {
-
+        filterData();
     }
     //endregion
 
     //region TextField Handlers
     @FXML
     private void setRemoveTextBoxWhite() {
-        if (removeTextField.getStyle() != "-fx-text-box-border:  #ffffff;")
+        if (!removeTextField.getStyle().equals("-fx-text-box-border:  #ffffff;"))
             removeTextField.setStyle("-fx-text-box-border:  #ffffff;");
     }
     //endregion
-
-
-    //region Tab Handlers
-
-    @FXML
-    private void enableRemoveTextField() {
-        removeTextField.setDisable(!removeTab.isSelected());
-    }
-
-    //endregion
-
 
     //region Dialog Boxes
     @FXML
@@ -167,16 +167,36 @@ public class MainPageController {
 
             if (result.orElse(no) == yes) {
                 removeSelectedRow();
+                if (!isFiltered)
+                    setupColumns();
             }
         }
+    }
 
+    @FXML
+    private void searchData() {
+        // TODO Search the data using a searching algorithim
+
+        // Create new empty list to store the text field data
+        List<String> textFieldList = new ArrayList<>();
+
+        /*
+         loop through the Children in the anchor to see
+         if the child object is a text field and is enabled
+         and then add it to the list
+        */
+        for (Node node : filterAnchorPane.getChildren()) {
+            if (!node.isDisabled() && node instanceof TextField) {
+                textFieldList.add(((TextField) node).getText());
+            }
+        }
     }
     //endregion
 
     //endregion
 
     //region Private Methods
-    private void startApp() throws IOException {
+    private void startApp() {
         permitHolderMap = new HashMap<>();
         // get the Permit Data from the JSON Fill
         loadPermitData();
@@ -186,9 +206,62 @@ public class MainPageController {
     }
 
     private void setupColumns() {
+        isFiltered = false;
+
         // Make a list of Items that is used for the JavaFX implementation and populate it with the items
         // from our Hash Map
         permits = FXCollections.observableArrayList(permitHolderMap.entrySet());
+
+        // Set the data table to read in the permit list
+        permitDataTable.setItems(permits);
+
+        // Apply the values from our Hash Map pass-through to all the columns on the table
+        idColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey()));
+        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
+        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
+        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
+        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getCar().sendRegNum()));
+        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
+        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
+        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
+
+        // Set default sort order based on the ID
+        permitDataTable.getSortOrder().add(idColumn);
+    }
+
+    // Filter Data
+    private void filterData() {
+
+        permits = FXCollections.observableArrayList(permitHolderMap.entrySet());
+        // Create a new FilterData object
+        FilterData filterData = new FilterData();
+
+        // Set the filterData values
+        filterData.setID(idTextField.getText());
+        filterData.setFirstName(firstNameTextField.getText());
+        filterData.setLastName(lastNameTextField.getText());
+        filterData.setAddress(addressTextField.getText());
+        filterData.setAreaCode(areaCodeTextField.getText());
+        filterData.setStartDate(startDate.getValue());
+        filterData.setExpiryDate(endDate.getValue());
+
+        // Filter the data
+        List<Map.Entry<String, PermitHolder>> filteredPermitHolders = filterData.filter(permitHolderMap.entrySet())
+                .collect(Collectors.toList());
+        ObservableList<Map.Entry<String, PermitHolder>> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
+        // Set up the table columns
+        updateTable(filteredPermits);
+
+        // Set the isFiltered flag
+        isFiltered = true;
+
+    }
+
+    // Update Table based on Filter or Search Results
+    private void updateTable(ObservableList<Map.Entry<String, PermitHolder>> filteredData) {
+        // Make a list of Items that is used for the JavaFX implementation and populate it with the items
+        // from our Hash Map
+        permits = filteredData;
 
         // Set the data table to read in the permit list
         permitDataTable.setItems(permits);
@@ -220,27 +293,26 @@ public class MainPageController {
     // Method for reading in our JSON file
 
     // Retreive data from the JSON file
-    private void loadPermitData(){
-        try{
+    private void loadPermitData() {
+        try {
             LoadPermitData load = new LoadPermitData();
 
             permitHolderMap = load.loadPermitData();
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
 
     }
+
     private void removeSelectedRow() {
         String idToRemove = removeTextField.getText();
         permits.removeIf(permit -> permit.getKey().equals(idToRemove));
 
-        if(permitHolderMap.get(idToRemove) == null){
+        if (permitHolderMap.get(idToRemove) == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "ID not Found in Hash Map");
             alert.setTitle("Error: Permit Not Found");
             alert.show();
-        }
-        else{
+        } else {
             permitHolderMap.remove(idToRemove);
 
             for (Map.Entry<String, PermitHolder> permit : permitHolderMap.entrySet()) {

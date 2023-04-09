@@ -15,72 +15,57 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="683.0"
-            prefWidth="995.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="PermitViews.MainPageController">
-   <TableView fx:id="permitDataTable" layoutX="215.0" layoutY="25.0" prefHeight="658.0" prefWidth="780.0"
-              AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="215.0" AnchorPane.rightAnchor="0.0"
-              AnchorPane.topAnchor="25.0">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="683.0" prefWidth="995.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="PermitViews.MainPageController">
+   <TableView fx:id="permitDataTable" layoutX="215.0" layoutY="25.0" prefHeight="658.0" prefWidth="780.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="215.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
       <columns>
-         <TableColumn fx:id="idColumn" prefWidth="77.66665649414062" text="ID"/>
-         <TableColumn fx:id="fNameColumn" prefWidth="90.33334350585938" text="First Name"/>
-         <TableColumn fx:id="lNameColumn" prefWidth="82.0" text="Last Name"/>
-         <TableColumn fx:id="addressColumn" prefWidth="81.6666259765625" text="Address"/>
-         <TableColumn fx:id="regColumn" prefWidth="73.0" text="Car Reg"/>
-         <TableColumn fx:id="areasColumn" prefWidth="71.0" text="Area Codes"/>
-         <TableColumn fx:id="startColumn" prefWidth="80.3333740234375" text="Start Date"/>
-         <TableColumn fx:id="expiryColumn" prefWidth="82.0" text="ExpiryDate"/>
+         <TableColumn fx:id="idColumn" prefWidth="77.66665649414062" sortable="false" text="ID" />
+         <TableColumn fx:id="fNameColumn" prefWidth="90.33334350585938" sortable="false" text="First Name" />
+         <TableColumn fx:id="lNameColumn" prefWidth="82.0" sortable="false" text="Last Name" />
+         <TableColumn fx:id="addressColumn" prefWidth="81.6666259765625" sortable="false" text="Address" />
+         <TableColumn fx:id="regColumn" prefWidth="73.0" sortable="false" text="Car Reg" />
+         <TableColumn fx:id="areasColumn" prefWidth="71.0" sortable="false" text="Area Codes" />
+         <TableColumn fx:id="startColumn" prefWidth="80.3333740234375" sortable="false" text="Start Date" />
+         <TableColumn fx:id="expiryColumn" prefWidth="82.0" sortable="false" text="ExpiryDate" />
       </columns>
    </TableView>
    <MenuBar layoutY="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <Menu mnemonicParsing="false" text="File">
-         <MenuItem mnemonicParsing="false" text="Close"/>
+         <MenuItem mnemonicParsing="false" text="Close" />
       </Menu>
       <Menu mnemonicParsing="false" text="Edit">
-         <MenuItem mnemonicParsing="false" text="Delete"/>
+         <MenuItem mnemonicParsing="false" text="Delete" />
       </Menu>
       <Menu mnemonicParsing="false" text="Help">
-         <MenuItem mnemonicParsing="false" text="About"/>
+         <MenuItem mnemonicParsing="false" text="About" />
       </Menu>
    </MenuBar>
-   <TabPane layoutY="25.0" prefHeight="659.0" prefWidth="284.0" tabClosingPolicy="UNAVAILABLE"
-            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="780.0"
-            AnchorPane.topAnchor="24.0">
+   <TabPane layoutY="25.0" prefHeight="659.0" prefWidth="284.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="780.0" AnchorPane.topAnchor="24.0">
       <Tab fx:id="filterTab" closable="false" text="Filter">
-         <AnchorPane fx:id="filtterAnchorPane" prefHeight="200.0" prefWidth="200.0">
-            <CheckBox fx:id="idCheckBox" layoutX="15.0" layoutY="22.0" mnemonicParsing="false"
-                      onAction="#handelIDCheckBoxAction" text="By ID"/>
-            <CheckBox fx:id="firstNameCheckBox" layoutX="15.0" layoutY="80.0" mnemonicParsing="false"
-                      onAction="#handelFirstNameCheckBoxAction" text="By First Name"/>
-            <CheckBox fx:id="lastNameCheckBox" layoutX="15.0" layoutY="140.0" mnemonicParsing="false"
-                      onAction="#handelLastNameCheckBoxAction" text="By Last Name"/>
-            <CheckBox fx:id="addressCheckBox" layoutX="15.0" layoutY="200.0" mnemonicParsing="false"
-                      onAction="#handelAddressCheckBoxAction" text="By Address"/>
-            <CheckBox fx:id="areaCodeCheckBox" layoutX="15.0" layoutY="260.0" mnemonicParsing="false"
-                      onAction="#handelAreaCodeCheckBoxAction" text="By Area Code"/>
-            <CheckBox fx:id="startCheckBox" layoutX="15.0" layoutY="319.0" mnemonicParsing="false"
-                      onAction="#handelStartCheckBoxAction" text="By Start Date"/>
-            <CheckBox fx:id="expiryCheckBox" layoutX="16.0" layoutY="379.0" mnemonicParsing="false"
-                      onAction="#handelEndCheckBoxAction" text="By Expiry Date"/>
-            <TextField fx:id="idTextField" disable="true" layoutX="14.0" layoutY="47.0"/>
-            <TextField fx:id="firstNameTextField" disable="true" layoutX="14.0" layoutY="106.0"/>
-            <TextField fx:id="lastNameTextField" disable="true" layoutX="14.0" layoutY="166.0"/>
-            <TextField fx:id="addressTextField" disable="true" layoutX="14.0" layoutY="226.0"/>
-            <TextField fx:id="areaCodeTextField" disable="true" layoutX="14.0" layoutY="286.0"/>
-            <Button fx:id="applyFiltterBtn" layoutX="14.0" layoutY="453.0" mnemonicParsing="false"
-                    onAction="#handelApplyButton" prefHeight="25.0" prefWidth="72.0" text="Apply"/>
-            <Button fx:id="filterResetBtn" layoutX="105.0" layoutY="453.0" mnemonicParsing="false"
-                    onAction="#handelResetButton" prefHeight="25.0" prefWidth="72.0" text="Reset"/>
-            <DatePicker fx:id="startDate" disable="true" layoutX="16.0" layoutY="344.0"/>
-            <DatePicker fx:id="endDate" disable="true" layoutX="15.0" layoutY="404.0"/>
+         <AnchorPane fx:id="filterAnchorPane" prefHeight="200.0" prefWidth="200.0">
+            <CheckBox fx:id="idCheckBox" layoutX="15.0" layoutY="22.0" mnemonicParsing="false" onAction="#handelIDCheckBoxAction" text="By ID" />
+            <CheckBox fx:id="firstNameCheckBox" layoutX="15.0" layoutY="80.0" mnemonicParsing="false" onAction="#handelFirstNameCheckBoxAction" text="By First Name" />
+            <CheckBox fx:id="lastNameCheckBox" layoutX="15.0" layoutY="140.0" mnemonicParsing="false" onAction="#handelLastNameCheckBoxAction" text="By Last Name" />
+            <CheckBox fx:id="addressCheckBox" layoutX="15.0" layoutY="200.0" mnemonicParsing="false" onAction="#handelAddressCheckBoxAction" text="By Address" />
+            <CheckBox fx:id="areaCodeCheckBox" layoutX="15.0" layoutY="260.0" mnemonicParsing="false" onAction="#handelAreaCodeCheckBoxAction" text="By Area Code" />
+            <CheckBox fx:id="startCheckBox" layoutX="15.0" layoutY="319.0" mnemonicParsing="false" onAction="#handelStartCheckBoxAction" text="By Start Date" />
+            <CheckBox fx:id="expiryCheckBox" layoutX="16.0" layoutY="379.0" mnemonicParsing="false" onAction="#handelEndCheckBoxAction" text="By Expiry Date" />
+            <TextField fx:id="idTextField" disable="true" layoutX="14.0" layoutY="47.0" />
+            <TextField fx:id="firstNameTextField" disable="true" layoutX="14.0" layoutY="106.0" />
+            <TextField fx:id="lastNameTextField" disable="true" layoutX="14.0" layoutY="166.0" />
+            <TextField fx:id="addressTextField" disable="true" layoutX="14.0" layoutY="226.0" />
+            <TextField fx:id="areaCodeTextField" disable="true" layoutX="14.0" layoutY="286.0" />
+            <Button fx:id="applyFiltterBtn" layoutX="14.0" layoutY="453.0" mnemonicParsing="false" onAction="#handelApplyButton" prefHeight="25.0" prefWidth="72.0" text="Apply" />
+            <Button fx:id="filterResetBtn" layoutX="105.0" layoutY="453.0" mnemonicParsing="false" onAction="#handelResetButton" prefHeight="25.0" prefWidth="72.0" text="Reset" />
+            <DatePicker fx:id="startDate" disable="true" layoutX="16.0" layoutY="344.0" />
+            <DatePicker fx:id="endDate" disable="true" layoutX="15.0" layoutY="404.0" />
          </AnchorPane>
       </Tab>
       <Tab fx:id="searchTab" closable="false" text="Search">
          <content>
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TextField fx:id="searchTextField" layoutX="33.0" layoutY="14.0"/>
-                  <Button fx:id="searchButton" layoutX="82.0" layoutY="51.0" mnemonicParsing="false" text="Search"/>
+                  <TextField fx:id="searchTextField" layoutX="33.0" layoutY="14.0" />
+                  <Button fx:id="searchButton" layoutX="82.0" layoutY="51.0" mnemonicParsing="false" text="Search" />
                </children>
             </AnchorPane>
          </content>
@@ -89,34 +74,32 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <Label layoutX="14.0" layoutY="34.0" text="First Name:"/>
-                  <TextField fx:id="addFirstName" layoutX="87.0" layoutY="30.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="69.0" text="Last Name:"/>
-                  <TextField fx:id="addLastName" layoutX="87.0" layoutY="65.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="105.0" text="House Num:"/>
-                  <TextField fx:id="addHouseNum" layoutX="87.0" layoutY="101.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="142.0" text="Street:"/>
-                  <TextField fx:id="addStreet" layoutX="87.0" layoutY="138.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="176.0" text="Town/City:"/>
-                  <TextField fx:id="addTown" layoutX="87.0" layoutY="172.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="210.0" text="County:"/>
-                  <TextField fx:id="addCounty" layoutX="87.0" layoutY="206.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="245.0" text="Post Code:"/>
-                  <TextField fx:id="addPostCode" layoutX="87.0" layoutY="241.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="280.0" text="Parking Area:"/>
-                  <Label layoutX="14.0" layoutY="315.0" text="Car Reg:"/>
-                  <TextField fx:id="addCarReg" layoutX="87.0" layoutY="311.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="349.0" text="Make:"/>
-                  <TextField fx:id="addCarMake" layoutX="87.0" layoutY="345.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="384.0" text="Model:"/>
-                  <TextField fx:id="addCarModel" layoutX="87.0" layoutY="380.0" prefHeight="25.0" prefWidth="114.0"/>
-                  <Label layoutX="14.0" layoutY="419.0" text="Colour:"/>
-                  <TextField fx:id="addCarColour" layoutX="87.0" layoutY="415.0" prefHeight="25.0"
-                             prefWidth="114.0"/>
-                  <Button fx:id="cancelButton" layoutX="149.0" layoutY="451.0" mnemonicParsing="false"
-                          text="Cancel"/>
-                  <ChoiceBox fx:id="addArea" layoutX="87.0" layoutY="276.0" prefHeight="25.0" prefWidth="113.0"/>
-                  <Button fx:id="addButton" layoutX="16.0" layoutY="451.0" mnemonicParsing="false" text="Add"/>
+                  <Label layoutX="14.0" layoutY="34.0" text="First Name:" />
+                  <TextField fx:id="addFirstName" layoutX="87.0" layoutY="30.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="69.0" text="Last Name:" />
+                  <TextField fx:id="addLastName" layoutX="87.0" layoutY="65.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="105.0" text="House Num:" />
+                  <TextField fx:id="addHouseNum" layoutX="87.0" layoutY="101.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="142.0" text="Street:" />
+                  <TextField fx:id="addStreet" layoutX="87.0" layoutY="138.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="176.0" text="Town/City:" />
+                  <TextField fx:id="addTown" layoutX="87.0" layoutY="172.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="210.0" text="County:" />
+                  <TextField fx:id="addCounty" layoutX="87.0" layoutY="206.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="245.0" text="Post Code:" />
+                  <TextField fx:id="addPostCode" layoutX="87.0" layoutY="241.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="280.0" text="Parking Area:" />
+                  <Label layoutX="14.0" layoutY="315.0" text="Car Reg:" />
+                  <TextField fx:id="addCarReg" layoutX="87.0" layoutY="311.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="349.0" text="Make:" />
+                  <TextField fx:id="addCarMake" layoutX="87.0" layoutY="345.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="384.0" text="Model:" />
+                  <TextField fx:id="addCarModel" layoutX="87.0" layoutY="380.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Label layoutX="14.0" layoutY="419.0" text="Colour:" />
+                  <TextField fx:id="addCarColour" layoutX="87.0" layoutY="415.0" prefHeight="25.0" prefWidth="114.0" />
+                  <Button fx:id="cancelButton" layoutX="149.0" layoutY="451.0" mnemonicParsing="false" text="Cancel" />
+                  <ChoiceBox fx:id="addArea" layoutX="87.0" layoutY="276.0" prefHeight="25.0" prefWidth="113.0" />
+                  <Button fx:id="addButton" layoutX="16.0" layoutY="451.0" mnemonicParsing="false" text="Add" />
                </children>
             </AnchorPane>
          </content>
@@ -125,11 +108,9 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <Label fx:id="removeLabel" layoutX="14.0" layoutY="39.0" text="ID:"/>
-                  <TextField fx:id="removeTextField" layoutX="41.0" layoutY="35.0"
-                             onKeyReleased="#setRemoveTextBoxWhite"/>
-                  <Button fx:id="removeButton" layoutX="82.0" layoutY="72.0" mnemonicParsing="false"
-                          onAction="#removeConfirmation" text="Remove"/>
+                  <Label fx:id="removeLabel" layoutX="14.0" layoutY="39.0" text="ID:" />
+                  <TextField fx:id="removeTextField" layoutX="41.0" layoutY="35.0" onKeyReleased="#setRemoveTextBoxWhite" />
+                  <Button fx:id="removeButton" layoutX="82.0" layoutY="72.0" mnemonicParsing="false" onAction="#removeConfirmation" text="Remove" />
                </children>
             </AnchorPane>
          </content>
