@@ -10,6 +10,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="PermitTrackerGUI" target="19" />
+      <module name="TestingMethods" target="20" />
     </bytecodeTargetLevel>
   </component>
 </project>
