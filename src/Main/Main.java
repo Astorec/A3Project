@@ -13,7 +13,7 @@ public class Main extends Application {
     // Used to create our Scene from the FXML and load the initial Main.Main Page
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("PermitViews/MainPageView.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/PermitViews/MainPageView.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Permit Tracker");
         primaryStage.setResizable(false);

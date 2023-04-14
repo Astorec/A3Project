@@ -5,9 +5,6 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -16,7 +13,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="683.0" prefWidth="995.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="PermitViews.MainPageController">
-   <TableView fx:id="permitDataTable" layoutX="215.0" layoutY="25.0" prefHeight="658.0" prefWidth="780.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="215.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+   <TableView fx:id="permitDataTable" layoutX="222.0" prefHeight="683.0" prefWidth="780.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="222.0" AnchorPane.rightAnchor="-7.0" AnchorPane.topAnchor="0.0">
       <columns>
          <TableColumn fx:id="idColumn" prefWidth="77.66665649414062" sortable="false" text="ID" />
          <TableColumn fx:id="fNameColumn" prefWidth="90.33334350585938" sortable="false" text="First Name" />
@@ -28,18 +25,7 @@
          <TableColumn fx:id="expiryColumn" prefWidth="82.0" sortable="false" text="ExpiryDate" />
       </columns>
    </TableView>
-   <MenuBar layoutY="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <Menu mnemonicParsing="false" text="File">
-         <MenuItem mnemonicParsing="false" text="Close" />
-      </Menu>
-      <Menu mnemonicParsing="false" text="Edit">
-         <MenuItem mnemonicParsing="false" text="Delete" />
-      </Menu>
-      <Menu mnemonicParsing="false" text="Help">
-         <MenuItem mnemonicParsing="false" text="About" />
-      </Menu>
-   </MenuBar>
-   <TabPane layoutY="25.0" prefHeight="659.0" prefWidth="284.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="780.0" AnchorPane.topAnchor="24.0">
+   <TabPane fx:id="mainTabPane" prefHeight="683.0" prefWidth="215.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="780.0" AnchorPane.topAnchor="0.0">
       <Tab fx:id="filterTab" closable="false" text="Filter">
          <AnchorPane fx:id="filterAnchorPane" prefHeight="200.0" prefWidth="200.0">
             <CheckBox fx:id="idCheckBox" layoutX="15.0" layoutY="22.0" mnemonicParsing="false" onAction="#handelIDCheckBoxAction" text="By ID" />
@@ -54,7 +40,7 @@
             <TextField fx:id="lastNameTextField" disable="true" layoutX="14.0" layoutY="166.0" />
             <TextField fx:id="addressTextField" disable="true" layoutX="14.0" layoutY="226.0" />
             <TextField fx:id="areaCodeTextField" disable="true" layoutX="14.0" layoutY="286.0" />
-            <Button fx:id="applyFiltterBtn" layoutX="14.0" layoutY="453.0" mnemonicParsing="false" onAction="#handelApplyButton" prefHeight="25.0" prefWidth="72.0" text="Apply" />
+            <Button fx:id="applyFilterBtn" layoutX="14.0" layoutY="453.0" mnemonicParsing="false" onAction="#handelApplyButton" prefHeight="25.0" prefWidth="72.0" text="Apply" />
             <Button fx:id="filterResetBtn" layoutX="105.0" layoutY="453.0" mnemonicParsing="false" onAction="#handelResetButton" prefHeight="25.0" prefWidth="72.0" text="Reset" />
             <DatePicker fx:id="startDate" disable="true" layoutX="16.0" layoutY="344.0" />
             <DatePicker fx:id="endDate" disable="true" layoutX="15.0" layoutY="404.0" />
@@ -104,7 +90,7 @@
             </AnchorPane>
          </content>
       </Tab>
-      <Tab fx:id="removeTab" closable="false" text="Remove">
+      <Tab closable="false" text="Remove">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>

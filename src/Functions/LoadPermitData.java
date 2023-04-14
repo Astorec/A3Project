@@ -14,8 +14,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 public class LoadPermitData {
-    public HashMap<String, PermitHolder> loadPermitData() throws IOException {
-
+    public static HashMap<String, PermitHolder> loadPermitData() throws IOException {
 
         File jsonData = new File("src/Data/PermitData.json");
         if(!jsonData.exists()){

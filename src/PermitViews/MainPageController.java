@@ -1,8 +1,7 @@
 package PermitViews;
 
 import Classes.PermitHolder;
-import Functions.FilterData;
-import Functions.LoadPermitData;
+import Functions.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -40,6 +39,8 @@ public class MainPageController {
     //endregion
 
     //region Properties
+    private HashMapOperations hashMapOps;
+    private CreateAlerts createAlerts;
     private HashMap<String, PermitHolder> permitHolderMap;
     private ObservableList<Map.Entry<String, PermitHolder>> permits;
     private Boolean isFiltered = false;
@@ -160,13 +161,13 @@ public class MainPageController {
         } else {
             ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
             ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Do you want to remove this entry?", yes, no);
 
-            alert.setTitle("Remove Permit?");
-            Optional<ButtonType> result = alert.showAndWait();
+            Alert alert = CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING,
+                    "Do you want to remove this entry?", true);
 
-            if (result.orElse(no) == yes) {
+            if (CreateAlerts.getInstance().getResult().orElse(no) == yes) {
                 removeSelectedRow();
+                removeTextField.clear();
                 if (!isFiltered)
                     setupColumns();
             }
@@ -196,10 +197,15 @@ public class MainPageController {
     //endregion
 
     //region Private Methods
-    private void startApp() {
-        permitHolderMap = new HashMap<>();
-        // get the Permit Data from the JSON Fill
-        loadPermitData();
+    private void startApp() throws IOException {
+
+        // Get the instance of the HashMapOperations class. Sets this up for the rest of this class
+        hashMapOps = HashMapOperations.getInstance();
+
+        // Set the Has Map to the Has Table from the json file which is done via the HashMapOperations
+        permitHolderMap = hashMapOps.getHashMap();
+
+        createAlerts = createAlerts.getInstance();
 
         // Populate the Columns on the GUI
         setupColumns();
@@ -290,34 +296,30 @@ public class MainPageController {
         });
     }
 
-    // Method for reading in our JSON file
 
-    // Retreive data from the JSON file
-    private void loadPermitData() {
-        try {
-            LoadPermitData load = new LoadPermitData();
-
-            permitHolderMap = load.loadPermitData();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-
-    }
-
+    // Remove the Data from the Selected Row
     private void removeSelectedRow() {
+        // Call the table operations class
+        TableOperations tableOperations = new TableOperations();
+
         String idToRemove = removeTextField.getText();
-        permits.removeIf(permit -> permit.getKey().equals(idToRemove));
+        try {
+            if (hashMapOps.getHashMap().get(removeTextField.getText()) == null) {
+                // Display an error message if the ID doesn't exist in the Hash Map
+                createAlerts.alertBuilder(CreateAlerts.AlertType.ERROR, "ID not found in Hash Map", false);
+            } else {
+                // Remove the Item from the Observable Table and the Hash map from the Table Operations class
+                permits = tableOperations.removePermit(idToRemove, permits);
 
-        if (permitHolderMap.get(idToRemove) == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "ID not Found in Hash Map");
-            alert.setTitle("Error: Permit Not Found");
-            alert.show();
-        } else {
-            permitHolderMap.remove(idToRemove);
+                // Get our newly updated hashmap
+                permitHolderMap = hashMapOps.getHashMap();
 
-            for (Map.Entry<String, PermitHolder> permit : permitHolderMap.entrySet()) {
-                System.out.println(permit.getKey());
+                // Reset our text field
+                removeTextField.clear();
             }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     //endregion
