@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 public class LoadPermitData {
-    public static HashMap<String, PermitHolder> loadPermitData() throws IOException {
+    public static HashMap<Integer, PermitHolder> loadPermitData() throws IOException {
 
         File jsonData = new File("src/Data/PermitData.json");
         if(!jsonData.exists()){
@@ -41,7 +41,7 @@ public class LoadPermitData {
         PermitHolder[] permitHolders = gson.fromJson(reader, PermitHolder[].class);
 
         // Create a new Hash Map to store the Permit Data
-        HashMap<String, PermitHolder> permitHolderMap = new HashMap<>();
+        HashMap<Integer, PermitHolder> permitHolderMap = new HashMap<Integer, PermitHolder>();
 
         // Loop through each permit in our Array and add it to our Hash Map
         for (PermitHolder ph : permitHolders) {

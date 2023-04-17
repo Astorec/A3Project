@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="683.0" prefWidth="995.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="PermitViews.MainPageController">
-   <TableView fx:id="permitDataTable" layoutX="222.0" prefHeight="683.0" prefWidth="780.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="222.0" AnchorPane.rightAnchor="-7.0" AnchorPane.topAnchor="0.0">
+   <TableView fx:id="permitDataTable" layoutX="241.0" prefHeight="683.0" prefWidth="761.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="241.0" AnchorPane.rightAnchor="-7.0" AnchorPane.topAnchor="0.0">
       <columns>
          <TableColumn fx:id="idColumn" prefWidth="77.66665649414062" sortable="false" text="ID" />
          <TableColumn fx:id="fNameColumn" prefWidth="90.33334350585938" sortable="false" text="First Name" />
@@ -25,9 +25,9 @@
          <TableColumn fx:id="expiryColumn" prefWidth="82.0" sortable="false" text="ExpiryDate" />
       </columns>
    </TableView>
-   <TabPane fx:id="mainTabPane" prefHeight="683.0" prefWidth="215.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="780.0" AnchorPane.topAnchor="0.0">
+   <TabPane fx:id="mainTabPane" prefHeight="648.0" prefWidth="242.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="753.0" AnchorPane.topAnchor="0.0">
       <Tab fx:id="filterTab" closable="false" text="Filter">
-         <AnchorPane fx:id="filterAnchorPane" prefHeight="200.0" prefWidth="200.0">
+         <AnchorPane fx:id="filterAnchorPane" prefHeight="200.0" prefWidth="242.0">
             <CheckBox fx:id="idCheckBox" layoutX="15.0" layoutY="22.0" mnemonicParsing="false" onAction="#handelIDCheckBoxAction" text="By ID" />
             <CheckBox fx:id="firstNameCheckBox" layoutX="15.0" layoutY="80.0" mnemonicParsing="false" onAction="#handelFirstNameCheckBoxAction" text="By First Name" />
             <CheckBox fx:id="lastNameCheckBox" layoutX="15.0" layoutY="140.0" mnemonicParsing="false" onAction="#handelLastNameCheckBoxAction" text="By Last Name" />
@@ -51,7 +51,7 @@
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                <children>
                   <TextField fx:id="searchTextField" layoutX="33.0" layoutY="14.0" />
-                  <Button fx:id="searchButton" layoutX="82.0" layoutY="51.0" mnemonicParsing="false" text="Search" />
+                  <Button fx:id="searchButton" layoutX="82.0" layoutY="51.0" mnemonicParsing="false" onAction="#searchData" text="Search" />
                </children>
             </AnchorPane>
          </content>
@@ -102,4 +102,7 @@
          </content>
       </Tab>
    </TabPane>
+   <Label layoutX="14.0" layoutY="648.0" text="Sort By: " />
+   <ChoiceBox fx:id="sortByChoiceBox" layoutX="63.0" layoutY="644.0" prefHeight="25.0" prefWidth="117.0" />
+   <Button fx:id="orderButton" layoutX="201.0" layoutY="644.0" mnemonicParsing="false" onAction="#setOrder" text="^" />
 </AnchorPane>

@@ -14,9 +14,9 @@ public class TableOperations {
         hashMapOps = HashMapOperations.getInstance();
     }
 
-    public ObservableList<Map.Entry<String, PermitHolder>> removePermit(String idToRemove, ObservableList<Map.Entry<String, PermitHolder>> permits) throws IOException {
+    public ObservableList<Map.Entry<Integer, PermitHolder>> removePermit(int idToRemove, ObservableList<Map.Entry<Integer, PermitHolder>> permits) throws IOException {
         // Remove the item from the Observable list if the ID exists on the list
-        permits.removeIf(permit -> permit.getKey().equals(idToRemove));
+        permits.removeIf(permit -> permit.getKey() == idToRemove);
 
         // Remove the ID from the Hashmap if the ID exists
         if (hashMapOps.getHashMap().get(idToRemove) == null) {

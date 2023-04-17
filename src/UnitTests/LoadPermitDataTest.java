@@ -14,7 +14,7 @@ class LoadPermitDataTest {
     // Test to ensure that all the data is being read in correctly from the JSON File
     @org.junit.jupiter.api.Test
     public void testDataRead() {
-        HashMap<String, PermitHolder> testData = new HashMap<>();
+        HashMap<Integer, PermitHolder> testData = new HashMap<>();
         LoadPermitData data = new LoadPermitData();
 
         try {
@@ -24,8 +24,8 @@ class LoadPermitDataTest {
             Assert.fail();
         }
 
-        for (Map.Entry<String, PermitHolder> permit : testData.entrySet()) {
-            String id = permit.getKey();
+        for (Map.Entry<Integer, PermitHolder> permit : testData.entrySet()) {
+            int id = permit.getKey();
             String firstName = permit.getValue().getFirst_name();
             String secondName = permit.getValue().getLast_name();
             String address = permit.getValue().getAddress().toString();

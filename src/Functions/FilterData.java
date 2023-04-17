@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class FilterData {
-    private String id;
+    private int id;
     private String firstName;
     private String lastName;
     private String address;
@@ -17,7 +17,7 @@ public class FilterData {
     private LocalDate startDate;
     private LocalDate expiryDate;
 
-    public void setID(String id) {
+    public void setID(int id) {
         this.id = id;
     }
 
@@ -45,10 +45,10 @@ public class FilterData {
         this.expiryDate = expiryDate;
     }
 
-    public Stream<Entry<String, PermitHolder>> filter(Set<Entry<String, PermitHolder>> entries) {
+    public Stream<Entry<Integer, PermitHolder>> filter(Set<Entry<Integer, PermitHolder>> entries) {
         return entries.stream().filter(entry -> {
             PermitHolder permit = entry.getValue();
-            boolean match = id == null || id.isEmpty() || permit.getId().contains(id);
+            boolean match = id < 0 || permit.getId() == id;
             if (firstName != null && !firstName.isEmpty() && !permit.getFirst_name().contains(firstName)) {
                 match = false;
             }

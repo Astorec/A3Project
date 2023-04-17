@@ -23,46 +23,28 @@ public class HashMapOperations {
     //endregion
 
     //region Properties
-    private HashMap<String, PermitHolder> permitHolderMap;
+    private HashMap<Integer, PermitHolder> permitHolderMap;
     private String permitHolders[];
 
-    public void updateHashMap(HashMap<String, PermitHolder> hashMap){
+    public void updateHashMap(HashMap<Integer, PermitHolder> hashMap){
         permitHolderMap = hashMap;
     }
 
-    public HashMap<String, PermitHolder> getHashMap() throws IOException {
+    public HashMap<Integer, PermitHolder> getHashMap() throws IOException {
         if(permitHolderMap == null){
            permitHolderMap = LoadPermitData.loadPermitData();
         }
         return permitHolderMap;
     }
 
-    public HashMap<String, PermitHolder> removeItem(String itemToRemove){
-        int count = 0;
-        permitHolderMap.remove(itemToRemove);
-
+    public HashMap<Integer, PermitHolder> removeItem(Integer itemToRemove){
+        Integer count = 0;
         List<String> permits = Arrays.asList(permitHolders);
-        for(String permit : permits){
-            if(permit == itemToRemove){
-                permits.remove(count);
-            }
-            else{
-                count++;
+        for(int i = 0; i < permits.size(); i ++){
+            if(permits.get(i).equals(itemToRemove)){
+                permitHolderMap.remove(itemToRemove);
             }
         }
-
         return permitHolderMap;
-    }
-
-    private void setPermitHolders(){
-        int count = 0;
-        for(Map.Entry permit : permitHolderMap.entrySet()){
-            permitHolders[count] = permit.getKey().toString();
-            count++;
-        }
-    }
-
-    public String[] getPermitHolders(){
-        return permitHolders;
     }
 }

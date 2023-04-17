@@ -2,11 +2,14 @@ package PermitViews;
 
 import Classes.PermitHolder;
 import Functions.*;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
@@ -21,32 +24,40 @@ public class MainPageController {
     @FXML
     AnchorPane filterAnchorPane;
     @FXML
-    TableView<Map.Entry<String, PermitHolder>> permitDataTable;
+    TableView<Map.Entry<Integer, PermitHolder>> permitDataTable;
     @FXML
-    TableColumn<Map.Entry<String, PermitHolder>, String> idColumn, fNameColumn, lNameColumn, addressColumn,
+    TableColumn<Map.Entry<Integer, PermitHolder>, String> idColumn, fNameColumn, lNameColumn, addressColumn,
             regColumn, areasColumn, startColumn, expiryColumn;
     @FXML
     Tab filterTab, searchTab, addTab, removeTab;
     @FXML
-    TextField idTextField, firstNameTextField, lastNameTextField, addressTextField, areaCodeTextField, removeTextField;
+    TextField idTextField, firstNameTextField, lastNameTextField, addressTextField, areaCodeTextField, removeTextField,
+            searchTextField;
     @FXML
     DatePicker startDate, endDate;
     @FXML
     CheckBox idCheckBox, firstNameCheckBox, lastNameCheckBox, addressCheckBox, areaCodeCheckBox, startCheckBox,
             expiryCheckBox;
     @FXML
-    Button filterResetBtn, removeButton;
+    Button filterResetBtn, removeButton, orderButton;
+
+    @FXML
+    ChoiceBox<String> sortByChoiceBox;
     //endregion
 
     //region Properties
     private HashMapOperations hashMapOps;
+    private HashMapQuickSort quickSort;
     private CreateAlerts createAlerts;
-    private HashMap<String, PermitHolder> permitHolderMap;
-    private ObservableList<Map.Entry<String, PermitHolder>> permits;
+    private HashMap<Integer, PermitHolder> permitHolderMap;
+    private ObservableList<Map.Entry<Integer, PermitHolder>> permits;
     private Boolean isFiltered = false;
+
+    private String currentSort;
+
+    HashMapQuickSort.sortBy sortBy;
     //endregion
 
-    //region FXML Related Methods
 
     //region Initialize method
 
@@ -64,13 +75,6 @@ public class MainPageController {
     }
     //endregion
 
-    /*
-     This contains the Handlers used with the FXML to tell the ui what to do when
-     specific elements are clicked. For example, we have  handlers to see if the
-     checkboxes are ticked so that if they are they can enable or disable the
-     text fields based on that
-
-     */
     //region Filter Handlers
     @FXML
     private void handelIDCheckBoxAction() {
@@ -145,6 +149,35 @@ public class MainPageController {
     }
     //endregion
 
+    //region Search Handler
+    @FXML
+    private void searchData() throws IOException {
+        String searchString = searchTextField.getText();
+
+        // Search for Data based on our search Text Field
+        List<PermitHolder> indexSearch = new ArrayList<>(permitHolderMap.values());
+
+        // Update the Results via the Search Table method
+        searchTable(indexSearch, searchString);
+    }
+    //endregion
+
+    //region Sort Handlers
+
+    @FXML
+    public void setOrder() {
+        if (quickSort.order.equals(true)) {
+            quickSort.order = false;
+            orderButton.setText("v");
+            sortData();
+        } else if (quickSort.order.equals(false)) {
+            quickSort.order = true;
+            orderButton.setText("^");
+            sortData();
+        }
+    }
+    //endregion
+
     //region TextField Handlers
     @FXML
     private void setRemoveTextBoxWhite() {
@@ -173,27 +206,6 @@ public class MainPageController {
             }
         }
     }
-
-    @FXML
-    private void searchData() {
-        // TODO Search the data using a searching algorithim
-
-        // Create new empty list to store the text field data
-        List<String> textFieldList = new ArrayList<>();
-
-        /*
-         loop through the Children in the anchor to see
-         if the child object is a text field and is enabled
-         and then add it to the list
-        */
-        for (Node node : filterAnchorPane.getChildren()) {
-            if (!node.isDisabled() && node instanceof TextField) {
-                textFieldList.add(((TextField) node).getText());
-            }
-        }
-    }
-    //endregion
-
     //endregion
 
     //region Private Methods
@@ -205,7 +217,10 @@ public class MainPageController {
         // Set the Has Map to the Has Table from the json file which is done via the HashMapOperations
         permitHolderMap = hashMapOps.getHashMap();
 
-        createAlerts = createAlerts.getInstance();
+        quickSort = HashMapQuickSort.getInstance();
+
+        setupChoiceBox();
+
 
         // Populate the Columns on the GUI
         setupColumns();
@@ -222,7 +237,7 @@ public class MainPageController {
         permitDataTable.setItems(permits);
 
         // Apply the values from our Hash Map pass-through to all the columns on the table
-        idColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey()));
+        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue().getId()).asString());
         fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
         lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
         addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
@@ -230,9 +245,6 @@ public class MainPageController {
         areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
         startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
         expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
-
-        // Set default sort order based on the ID
-        permitDataTable.getSortOrder().add(idColumn);
     }
 
     // Filter Data
@@ -243,7 +255,7 @@ public class MainPageController {
         FilterData filterData = new FilterData();
 
         // Set the filterData values
-        filterData.setID(idTextField.getText());
+        filterData.setID(Integer.parseInt(idTextField.getText()));
         filterData.setFirstName(firstNameTextField.getText());
         filterData.setLastName(lastNameTextField.getText());
         filterData.setAddress(addressTextField.getText());
@@ -252,28 +264,27 @@ public class MainPageController {
         filterData.setExpiryDate(endDate.getValue());
 
         // Filter the data
-        List<Map.Entry<String, PermitHolder>> filteredPermitHolders = filterData.filter(permitHolderMap.entrySet())
+        List<Map.Entry<Integer, PermitHolder>> filteredPermitHolders = filterData.filter(permitHolderMap.entrySet())
                 .collect(Collectors.toList());
-        ObservableList<Map.Entry<String, PermitHolder>> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
+        ObservableList<Map.Entry<Integer, PermitHolder>> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
         // Set up the table columns
         updateTable(filteredPermits);
 
         // Set the isFiltered flag
         isFiltered = true;
-
     }
 
     // Update Table based on Filter or Search Results
-    private void updateTable(ObservableList<Map.Entry<String, PermitHolder>> filteredData) {
+    private void updateTable(ObservableList<Map.Entry<Integer, PermitHolder>> updatedData) {
         // Make a list of Items that is used for the JavaFX implementation and populate it with the items
         // from our Hash Map
-        permits = filteredData;
+        permits = updatedData;
 
         // Set the data table to read in the permit list
         permitDataTable.setItems(permits);
 
         // Apply the values from our Hash Map pass-through to all the columns on the table
-        idColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getKey()));
+        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue().getId()).asString());
         fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
         lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
         addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
@@ -281,19 +292,120 @@ public class MainPageController {
         areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
         startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
         expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
+    }
 
-        // Set default sort order based on the ID
-        permitDataTable.getSortOrder().add(idColumn);
+
+    private void searchTable(List<PermitHolder> results, String searchString) {
+        // Filter the results based on the search string
+        List<PermitHolder> filteredResults = results.stream()
+                .filter(ph -> ph.toString().contains(searchString))
+                .collect(Collectors.toList());
+
+        // Get the filtered results and pass them to a Hash Set
+        Set<PermitHolder> uniquePermitHolders = new HashSet<>(filteredResults);
+
+        // Convert the unique PermitHolder objects to Map entries and add them to the results map
+        HashMap<Integer, PermitHolder> returnResults = new HashMap<>();
+
+        for (PermitHolder permitHolder : uniquePermitHolders) {
+            int id = permitHolder.getId();
+            returnResults.put(id, permitHolder);
+        }
+
+        ObservableList<Map.Entry<Integer, PermitHolder>> searchResults = FXCollections.observableArrayList();
+        for (Map.Entry<Integer, PermitHolder> entry : returnResults.entrySet()) {
+            searchResults.add(entry);
+        }
+
+        // Set the data table to read in the permit list
+        permitDataTable.setItems(searchResults);
+
+        // Apply the values from our Hash Map pass-through to all the columns on the table
+        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue().getId()).asString());
+        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
+        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
+        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
+        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getCar().sendRegNum()));
+        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
+        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
+        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
+    }
+
+
+    private void sortData() {
+        // Sort the Table's data based on the current sortBy enum value
+        Map<Integer, PermitHolder> sortedMap = quickSort.quickSort(permitHolderMap, 1, permitHolderMap.size() - 1, sortBy);
+
+        // store the Map as an Observable list so that Java FX can read it
+        ObservableList<Map.Entry<Integer, PermitHolder>> sortResult = FXCollections.observableArrayList();
+        for (Map.Entry<Integer, PermitHolder> entry : sortedMap.entrySet()) {
+            sortResult.add(entry);
+        }
+
+        // Update the table
+        permitDataTable.getItems().clear();
+        permitDataTable.setItems(sortResult);
     }
 
     // Method for Aditional Handlers that need to be setup at the start of the program
     private void setUpAdditionalHandlers() {
+        // Set the remove text field to the specific selected column id
         permitDataTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) ->
         {
             if (newVal != null) {
-                removeTextField.setText(newVal.getKey());
+                removeTextField.setText(String.valueOf(newVal.getKey()));
             }
         });
+
+        // When the Choice box value is changed, change the table data accordingly
+        sortByChoiceBox.getSelectionModel().selectedIndexProperty().addListener((ChangeListener) (ov, old, newval) -> {
+            Number idx = (Number) newval;
+
+            switch (idx.intValue()) {
+                case 1:
+                    sortBy = HashMapQuickSort.sortBy.FIRST_NAME;
+                    sortData();
+                    break;
+                case 2:
+                    sortBy = HashMapQuickSort.sortBy.LAST_NAME;
+                    sortData();
+                    break;
+                case 3:
+                    sortBy = HashMapQuickSort.sortBy.ADDRESS;
+                    sortData();
+                    break;
+                case 4:
+                    sortBy = HashMapQuickSort.sortBy.CAR;
+                    sortData();
+                    break;
+                case 5:
+                    sortBy = HashMapQuickSort.sortBy.START_DATE;
+                    sortData();
+                    break;
+                case 6:
+                    sortBy = HashMapQuickSort.sortBy.END_DATE;
+                    sortData();
+                    break;
+                default:
+                    sortBy = HashMapQuickSort.sortBy.ID;
+                    sortData();
+                    break;
+            }
+        });
+    }
+
+    // Set up the Choice box at the start of the application and set the default selection to the ID
+    private void setupChoiceBox() {
+        sortByChoiceBox.getItems().add("ID");
+        sortByChoiceBox.getItems().add("First Name");
+        sortByChoiceBox.getItems().add("Last Name");
+        sortByChoiceBox.getItems().add("Address");
+        sortByChoiceBox.getItems().add("Car");
+        sortByChoiceBox.getItems().add("Start Date");
+        sortByChoiceBox.getItems().add("Expiry Date");
+        sortByChoiceBox.getSelectionModel().select(0);
+
+        sortBy = HashMapQuickSort.sortBy.ID;
     }
 
 
@@ -309,7 +421,7 @@ public class MainPageController {
                 createAlerts.alertBuilder(CreateAlerts.AlertType.ERROR, "ID not found in Hash Map", false);
             } else {
                 // Remove the Item from the Observable Table and the Hash map from the Table Operations class
-                permits = tableOperations.removePermit(idToRemove, permits);
+                permits = tableOperations.removePermit(Integer.parseInt(idToRemove), permits);
 
                 // Get our newly updated hashmap
                 permitHolderMap = hashMapOps.getHashMap();
@@ -322,5 +434,6 @@ public class MainPageController {
             throw new RuntimeException(e);
         }
     }
+
     //endregion
 }
