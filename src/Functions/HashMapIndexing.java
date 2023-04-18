@@ -1,11 +1,9 @@
 package Functions;
 
-import Classes.Permit;
 import Classes.PermitHolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class HashMapIndexing {

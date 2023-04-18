@@ -16,7 +16,10 @@ import java.util.HashMap;
 public class LoadPermitData {
     public static HashMap<Integer, PermitHolder> loadPermitData() throws IOException {
 
+        // Get the file path of the JSON file
         File jsonData = new File("src/Data/PermitData.json");
+
+        // If the File and path doesn't exist, create it
         if(!jsonData.exists()){
             jsonData.getParentFile().mkdirs();
             jsonData.createNewFile();

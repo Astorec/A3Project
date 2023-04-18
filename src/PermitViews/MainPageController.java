@@ -5,10 +5,8 @@ import Functions.*;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -29,15 +27,12 @@ public class MainPageController {
     TableColumn<Map.Entry<Integer, PermitHolder>, String> idColumn, fNameColumn, lNameColumn, addressColumn,
             regColumn, areasColumn, startColumn, expiryColumn;
     @FXML
-    Tab filterTab, searchTab, addTab, removeTab;
+    Tab filterTab, addTab;
     @FXML
-    TextField idTextField, firstNameTextField, lastNameTextField, addressTextField, areaCodeTextField, removeTextField,
+    TextField firstNameTextField, lastNameTextField, addressTextField, areaCodeTextField, removeTextField,
             searchTextField;
     @FXML
-    DatePicker startDate, endDate;
-    @FXML
-    CheckBox idCheckBox, firstNameCheckBox, lastNameCheckBox, addressCheckBox, areaCodeCheckBox, startCheckBox,
-            expiryCheckBox;
+    CheckBox firstNameCheckBox, lastNameCheckBox, addressCheckBox, areaCodeCheckBox;
     @FXML
     Button filterResetBtn, removeButton, orderButton;
 
@@ -48,13 +43,9 @@ public class MainPageController {
     //region Properties
     private HashMapOperations hashMapOps;
     private HashMapQuickSort quickSort;
-    private CreateAlerts createAlerts;
     private HashMap<Integer, PermitHolder> permitHolderMap;
     private ObservableList<Map.Entry<Integer, PermitHolder>> permits;
     private Boolean isFiltered = false;
-
-    private String currentSort;
-
     HashMapQuickSort.sortBy sortBy;
     //endregion
 
@@ -77,38 +68,38 @@ public class MainPageController {
 
     //region Filter Handlers
     @FXML
-    private void handelIDCheckBoxAction() {
-        idTextField.setDisable(!idCheckBox.isSelected());
-    }
-
-    @FXML
     private void handelFirstNameCheckBoxAction() {
         firstNameTextField.setDisable(!firstNameCheckBox.isSelected());
+
+        if (!firstNameCheckBox.isSelected()) {
+            firstNameTextField.clear();
+        }
     }
 
     @FXML
     private void handelLastNameCheckBoxAction() {
         lastNameTextField.setDisable(!lastNameCheckBox.isSelected());
+
+        if (!lastNameCheckBox.isSelected()) {
+            lastNameTextField.clear();
+        }
     }
 
     @FXML
     private void handelAddressCheckBoxAction() {
         addressTextField.setDisable(!addressCheckBox.isSelected());
+        if (!addressCheckBox.isSelected()) {
+            addressTextField.clear();
+        }
     }
 
     @FXML
     private void handelAreaCodeCheckBoxAction() {
         areaCodeTextField.setDisable(!areaCodeCheckBox.isSelected());
-    }
 
-    @FXML
-    private void handelStartCheckBoxAction() {
-        startDate.setDisable(!startCheckBox.isSelected());
-    }
-
-    @FXML
-    private void handelEndCheckBoxAction() {
-        endDate.setDisable(!expiryCheckBox.isSelected());
+        if (!areaCodeCheckBox.isSelected()) {
+            areaCodeTextField.clear();
+        }
     }
 
     // Reset all the filters  if the reset button is pressed
@@ -116,28 +107,19 @@ public class MainPageController {
     private void handelResetButton() {
 
         // Reset the checkboxes
-        idCheckBox.setSelected(false);
         firstNameCheckBox.setSelected(false);
         lastNameCheckBox.setSelected(false);
         addressCheckBox.setSelected(false);
-        startCheckBox.setSelected(false);
-        expiryCheckBox.setSelected(false);
 
         // Disable the Text Fields and Date Fields
-        idTextField.setDisable(true);
         firstNameTextField.setDisable(true);
         lastNameTextField.setDisable(true);
         addressTextField.setDisable(true);
-        startDate.setDisable(true);
 
         // Reset the Text Fields and Date Fields
-        idTextField.clear();
         firstNameTextField.clear();
         lastNameTextField.clear();
         addressTextField.clear();
-        startDate.getEditor().clear();
-        endDate.setDisable(true);
-        endDate.getEditor().clear();
 
         // Reset the Data View by calling the setup again
         setupColumns();
@@ -152,13 +134,19 @@ public class MainPageController {
     //region Search Handler
     @FXML
     private void searchData() throws IOException {
-        String searchString = searchTextField.getText();
 
-        // Search for Data based on our search Text Field
-        List<PermitHolder> indexSearch = new ArrayList<>(permitHolderMap.values());
+        if (searchTextField.getText().equals("")) {
+            searchTextField.setStyle("-fx-text-box-border: #ff0000;");
+        } else {
+            String searchString = searchTextField.getText();
 
-        // Update the Results via the Search Table method
-        searchTable(indexSearch, searchString);
+            // Search for Data based on our search Text Field
+            List<PermitHolder> indexSearch = new ArrayList<>(permitHolderMap.values());
+
+            // Update the Results via the Search Table method
+            searchTable(indexSearch, searchString);
+        }
+
     }
     //endregion
 
@@ -184,6 +172,11 @@ public class MainPageController {
         if (!removeTextField.getStyle().equals("-fx-text-box-border:  #ffffff;"))
             removeTextField.setStyle("-fx-text-box-border:  #ffffff;");
     }
+    @FXML
+    private void setSearchTextBoxWhite() {
+        if (!searchTextField.equals("-fx-text-box-border:  #ffffff;"))
+            searchTextField.setStyle("-fx-text-box-border:  #ffffff;");
+    }
     //endregion
 
     //region Dialog Boxes
@@ -195,10 +188,10 @@ public class MainPageController {
             ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
             ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            Alert alert = CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING,
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING,
                     "Do you want to remove this entry?", true);
 
-            if (CreateAlerts.getInstance().getResult().orElse(no) == yes) {
+            if (CreateAlerts.getInstance().getResult().orElse(no).equals(yes)) {
                 removeSelectedRow();
                 removeTextField.clear();
                 if (!isFiltered)
@@ -254,24 +247,36 @@ public class MainPageController {
         // Create a new FilterData object
         FilterData filterData = new FilterData();
 
-        // Set the filterData values
-        filterData.setID(Integer.parseInt(idTextField.getText()));
-        filterData.setFirstName(firstNameTextField.getText());
-        filterData.setLastName(lastNameTextField.getText());
-        filterData.setAddress(addressTextField.getText());
-        filterData.setAreaCode(areaCodeTextField.getText());
-        filterData.setStartDate(startDate.getValue());
-        filterData.setExpiryDate(endDate.getValue());
 
-        // Filter the data
-        List<Map.Entry<Integer, PermitHolder>> filteredPermitHolders = filterData.filter(permitHolderMap.entrySet())
-                .collect(Collectors.toList());
-        ObservableList<Map.Entry<Integer, PermitHolder>> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
-        // Set up the table columns
-        updateTable(filteredPermits);
+        if (firstNameCheckBox.isSelected() && firstNameTextField.getText().equals("")) {
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please enter a valid First Name", false);
+        } else if (lastNameCheckBox.isSelected() && lastNameTextField.getText().equals("")) {
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please enter a valid Last Name", false);
+        } else if (addressCheckBox.isSelected() && addressTextField.getText().equals("")) {
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please enter a valid Address", false);
+        } else if (areaCodeCheckBox.isSelected() && areaCodeTextField.getText().equals("")) {
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please enter a valid Area Code", false);
+        } else {
+            // Set the filterData values
+            //   filterData.setID(Integer.parseInt(idTextField.getText()));
+            filterData.setFirstName(firstNameTextField.getText());
+            filterData.setLastName(lastNameTextField.getText());
+            filterData.setAddress(addressTextField.getText());
+            filterData.setAreaCode(areaCodeTextField.getText());
+            //   filterData.setStartDate(startDate.getValue());
+            //       filterData.setExpiryDate(endDate.getValue());
 
-        // Set the isFiltered flag
-        isFiltered = true;
+            // Filter the data
+            List<Map.Entry<Integer, PermitHolder>> filteredPermitHolders = filterData.filter(permitHolderMap.entrySet())
+                    .collect(Collectors.toList());
+            ObservableList<Map.Entry<Integer, PermitHolder>> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
+            // Set up the table columns
+            updateTable(filteredPermits);
+
+            // Set the isFiltered flag
+            isFiltered = true;
+
+        }
     }
 
     // Update Table based on Filter or Search Results
@@ -299,7 +304,7 @@ public class MainPageController {
         // Filter the results based on the search string
         List<PermitHolder> filteredResults = results.stream()
                 .filter(ph -> ph.toString().contains(searchString))
-                .collect(Collectors.toList());
+                .toList();
 
         // Get the filtered results and pass them to a Hash Set
         Set<PermitHolder> uniquePermitHolders = new HashSet<>(filteredResults);
@@ -313,9 +318,7 @@ public class MainPageController {
         }
 
         ObservableList<Map.Entry<Integer, PermitHolder>> searchResults = FXCollections.observableArrayList();
-        for (Map.Entry<Integer, PermitHolder> entry : returnResults.entrySet()) {
-            searchResults.add(entry);
-        }
+        searchResults.addAll(returnResults.entrySet());
 
         // Set the data table to read in the permit list
         permitDataTable.setItems(searchResults);
@@ -338,9 +341,7 @@ public class MainPageController {
 
         // store the Map as an Observable list so that Java FX can read it
         ObservableList<Map.Entry<Integer, PermitHolder>> sortResult = FXCollections.observableArrayList();
-        for (Map.Entry<Integer, PermitHolder> entry : sortedMap.entrySet()) {
-            sortResult.add(entry);
-        }
+        sortResult.addAll(sortedMap.entrySet());
 
         // Update the table
         permitDataTable.getItems().clear();
@@ -362,34 +363,36 @@ public class MainPageController {
             Number idx = (Number) newval;
 
             switch (idx.intValue()) {
-                case 1:
+                case 1 -> {
                     sortBy = HashMapQuickSort.sortBy.FIRST_NAME;
                     sortData();
-                    break;
-                case 2:
+                }
+
+                case 2 -> {
                     sortBy = HashMapQuickSort.sortBy.LAST_NAME;
                     sortData();
-                    break;
-                case 3:
+                }
+
+                case 3 -> {
                     sortBy = HashMapQuickSort.sortBy.ADDRESS;
                     sortData();
-                    break;
-                case 4:
+                }
+                case 4 -> {
                     sortBy = HashMapQuickSort.sortBy.CAR;
                     sortData();
-                    break;
-                case 5:
+                }
+                case 5 -> {
                     sortBy = HashMapQuickSort.sortBy.START_DATE;
                     sortData();
-                    break;
-                case 6:
+                }
+                case 6 -> {
                     sortBy = HashMapQuickSort.sortBy.END_DATE;
                     sortData();
-                    break;
-                default:
+                }
+                default -> {
                     sortBy = HashMapQuickSort.sortBy.ID;
                     sortData();
-                    break;
+                }
             }
         });
     }
@@ -418,7 +421,7 @@ public class MainPageController {
         try {
             if (hashMapOps.getHashMap().get(removeTextField.getText()) == null) {
                 // Display an error message if the ID doesn't exist in the Hash Map
-                createAlerts.alertBuilder(CreateAlerts.AlertType.ERROR, "ID not found in Hash Map", false);
+                CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.ERROR, "ID not found in Hash Map", false);
             } else {
                 // Remove the Item from the Observable Table and the Hash map from the Table Operations class
                 permits = tableOperations.removePermit(Integer.parseInt(idToRemove), permits);

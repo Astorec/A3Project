@@ -3,7 +3,6 @@ package Functions;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import org.assertj.core.error.future.Warning;
 
 import java.util.Optional;
 
@@ -27,12 +26,10 @@ public class CreateAlerts {
         ERROR
     }
 
-    ;
-
-    private String windowString = "";
     private Optional<ButtonType> result;
     //endregion
 
+    //region Methods
     public Alert alertBuilder(AlertType alertType, String message, boolean addYesNo) {
 
         if (addYesNo) {
@@ -52,20 +49,25 @@ public class CreateAlerts {
 
 
     private Alert.AlertType getAlertType(AlertType type) {
+        String windowString = "";
         switch (type) {
-            case ERROR:
+            case ERROR -> {
                 windowString = "Error";
                 return Alert.AlertType.ERROR;
-
-            case WARNING:
+            }
+            case WARNING -> {
                 windowString = "Warning";
                 return Alert.AlertType.WARNING;
-            default:
+            }
+            default -> {
                 return Alert.AlertType.ERROR;
+            }
         }
     }
 
     public Optional<ButtonType> getResult() {
         return result;
     }
+
+    //endregion
 }
