@@ -65,7 +65,7 @@
             <TextField fx:id="addCarColour" layoutX="87.0" layoutY="415.0" prefHeight="25.0" prefWidth="114.0" />
             <Button fx:id="cancelButton" layoutX="176.0" layoutY="451.0" mnemonicParsing="false" text="Cancel" />
             <ChoiceBox fx:id="addArea" layoutX="87.0" layoutY="276.0" prefHeight="25.0" prefWidth="113.0" />
-            <Button fx:id="addButton" layoutX="16.0" layoutY="451.0" mnemonicParsing="false" text="Add" />
+            <Button fx:id="addButton" layoutX="16.0" layoutY="451.0" mnemonicParsing="false" onAction="#addPermit" text="Add" />
          </AnchorPane>
       </Tab>
    </TabPane>

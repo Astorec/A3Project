@@ -36,8 +36,6 @@ public class CreateAlerts {
             ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
             ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
             Alert alertWindow = new Alert(getAlertType(alertType), message, yes, no);
-            alertWindow.show();
-            result = alertWindow.showAndWait();
             return alertWindow;
         } else {
             Alert alertWindow = new Alert(getAlertType(alertType), message);

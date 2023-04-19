@@ -20,23 +20,23 @@ public class Address {
     //endregion
 
     //region Getters
-    private String getHouse_num() {
+    public String getHouse_num() {
         return house_num;
     }
 
-    private String getStreet_name() {
+    public String getStreet_name() {
         return street_name;
     }
 
-    private String getTown() {
+    public String getTown() {
         return town;
     }
 
-    private String getCounty() {
+    public String getCounty() {
         return county;
     }
 
-    private String getPost_code() {
+    public String getPost_code() {
         return post_code;
     }
     //endregion

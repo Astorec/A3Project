@@ -1,10 +1,13 @@
 package PermitViews;
 
+import Classes.Address;
+import Classes.Car;
+import Classes.Permit;
 import Classes.PermitHolder;
 import Functions.*;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,12 +15,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class MainPageController {
-
-
     //region FXML Properties
     @FXML
     AnchorPane filterAnchorPane;
@@ -32,12 +34,16 @@ public class MainPageController {
     TextField firstNameTextField, lastNameTextField, addressTextField, areaCodeTextField, removeTextField,
             searchTextField;
     @FXML
-    CheckBox firstNameCheckBox, lastNameCheckBox, addressCheckBox, areaCodeCheckBox;
-    @FXML
-    Button filterResetBtn, removeButton, orderButton;
+    TextField addFirstName, addLastName, addHouseNum, addStreet, addTown, addCounty, addPostCode, addCarReg, addCarMake,
+            addCarModel, addCarColour;
 
     @FXML
-    ChoiceBox<String> sortByChoiceBox;
+    CheckBox firstNameCheckBox, lastNameCheckBox, addressCheckBox, areaCodeCheckBox;
+    @FXML
+    Button filterResetBtn, removeButton, orderButton, addButton, cancelButton;
+
+    @FXML
+    ChoiceBox<String> sortByChoiceBox, addArea;
     //endregion
 
     //region Properties
@@ -166,12 +172,29 @@ public class MainPageController {
     }
     //endregion
 
+    //region Add Handler
+    @FXML
+    public void addPermit() throws IOException {
+        Address address = new Address(addHouseNum.getText(), addStreet.getText(), addTown.getText(), addCounty.getText(),
+                addPostCode.getText());
+        Car car = new Car(addCarReg.getText(), addCarMake.getText(), addCarModel.getText(), addCarColour.getText());
+        Permit permit = new Permit("A1", LocalDate.now(), LocalDate.now().plusYears(1));
+        PermitHolder newPermit = new PermitHolder(hashMapOps.getNextID(), addFirstName.getText(), addLastName.getText(), address, car, permit);
+
+        ObservableList<Map.Entry<Integer, PermitHolder>> updatedPermit = FXCollections.observableArrayList();
+        updatedPermit.addAll(hashMapOps.newPermit(newPermit).entrySet());
+        PermitData.saveNewPermit(newPermit);
+        setupColumns();
+    }
+    //endregion
+
     //region TextField Handlers
     @FXML
     private void setRemoveTextBoxWhite() {
         if (!removeTextField.getStyle().equals("-fx-text-box-border:  #ffffff;"))
             removeTextField.setStyle("-fx-text-box-border:  #ffffff;");
     }
+
     @FXML
     private void setSearchTextBoxWhite() {
         if (!searchTextField.equals("-fx-text-box-border:  #ffffff;"))
@@ -188,10 +211,10 @@ public class MainPageController {
             ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
             ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING,
-                    "Do you want to remove this entry?", true);
+            Optional<ButtonType> result = CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING,
+                    "Do you want to remove this entry?", true).showAndWait();
 
-            if (CreateAlerts.getInstance().getResult().orElse(no).equals(yes)) {
+            if (result.get().getText().equals("Yes")) {
                 removeSelectedRow();
                 removeTextField.clear();
                 if (!isFiltered)
@@ -419,18 +442,22 @@ public class MainPageController {
 
         String idToRemove = removeTextField.getText();
         try {
-            if (hashMapOps.getHashMap().get(removeTextField.getText()) == null) {
+            if (hashMapOps.getHashMap().get(Integer.parseInt(removeTextField.getText())) == null) {
                 // Display an error message if the ID doesn't exist in the Hash Map
-                CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.ERROR, "ID not found in Hash Map", false);
+                CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.ERROR,
+                        "ID not found in Hash Map", false);
             } else {
                 // Remove the Item from the Observable Table and the Hash map from the Table Operations class
+                PermitData.removePermit(Integer.parseInt(idToRemove));
                 permits = tableOperations.removePermit(Integer.parseInt(idToRemove), permits);
 
                 // Get our newly updated hashmap
                 permitHolderMap = hashMapOps.getHashMap();
-
                 // Reset our text field
                 removeTextField.clear();
+
+                hashMapOps.updateHashMap(permitHolderMap);
+
             }
 
         } catch (IOException e) {

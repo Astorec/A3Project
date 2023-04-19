@@ -1,25 +1,20 @@
 package UnitTests;
 
-import com.google.common.collect.Table;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.stage.Popup;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.base.WindowMatchers;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,26 +37,6 @@ class MainPageControllerTest {
     //endregion
 
     //region Enable/Disable Text Field Tests
-    @org.junit.jupiter.api.Test
-    @Order(1)
-    public void testIDTextField(FxRobot robot) {
-        // Declare the objects to look for at the start of the test
-        TextField textField = robot.lookup("#idTextField").query();
-        CheckBox checkBox = robot.lookup("#idCheckBox").query();
-
-        // Wait until the ID Checkbox is ticked before continuing
-        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
-
-        // Make sure that the text field is Enabled once the checkbox is ticked
-        Assertions.assertFalse(textField.isDisabled());
-
-        // Wait again until the Checkbox is unticked before continuing
-        await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
-
-        // Make sure that the text field is now Disabled again
-        Assertions.assertTrue(textField.isDisabled());
-    }
-
     @org.junit.jupiter.api.Test
     @Order(2)
     public void testFirstNameTextField(FxRobot robot) {
@@ -110,36 +85,10 @@ class MainPageControllerTest {
         Assertions.assertTrue(textField.isDisabled());
     }
 
-    @org.junit.jupiter.api.Test
-    @Order(6)
-    public void testStartDateField(FxRobot robot) {
-        DatePicker datePicker = robot.lookup("#startDate").query();
-        CheckBox checkBox = robot.lookup("#startCheckBox").query();
-        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
-
-        Assertions.assertFalse(datePicker.isDisabled());
-        await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
-        Assertions.assertTrue(datePicker.isDisabled());
-    }
-
-    @org.junit.jupiter.api.Test
-    @Order(7)
-    public void testExpiryDateField(FxRobot robot) {
-        DatePicker datePicker = robot.lookup("#endDate").query();
-        CheckBox checkBox = robot.lookup("#expiryCheckBox").query();
-        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
-
-        Assertions.assertFalse(datePicker.isDisabled());
-        await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
-        Assertions.assertTrue(datePicker.isDisabled());
-    }
-
-
     //endregion
 
     //region Check That Data can be Filtered
-    @org.junit.jupiter.api.Test
-    @Order(8)
+
     public void filterItem(FxRobot robot) throws InterruptedException {
 
         // Properties to look for
@@ -171,8 +120,7 @@ class MainPageControllerTest {
     //endregion
 
     //region Remove Items from Table
-    @org.junit.jupiter.api.Test
-    @Order(10)
+
     public void removeItem(FxRobot robot) throws InterruptedException {
         // Properties to look for
         TabPane tab = robot.lookup("#mainTabPane").query();

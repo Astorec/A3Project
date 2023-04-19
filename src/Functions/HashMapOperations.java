@@ -1,13 +1,9 @@
 package Functions;
 
-import Classes.Permit;
 import Classes.PermitHolder;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class HashMapOperations {
 
@@ -32,19 +28,33 @@ public class HashMapOperations {
 
     public HashMap<Integer, PermitHolder> getHashMap() throws IOException {
         if(permitHolderMap == null){
-           permitHolderMap = LoadPermitData.loadPermitData();
+           permitHolderMap = PermitData.loadPermitData();
         }
         return permitHolderMap;
     }
 
     public HashMap<Integer, PermitHolder> removeItem(Integer itemToRemove){
         Integer count = 0;
-        List<String> permits = Arrays.asList(permitHolders);
+        List<String> permits = Arrays.asList(String.valueOf(permitHolderMap));
         for(int i = 0; i < permits.size(); i ++){
             if(permits.get(i).equals(itemToRemove)){
                 permitHolderMap.remove(itemToRemove);
             }
         }
         return permitHolderMap;
+    }
+
+    public HashMap<Integer, PermitHolder> newPermit(PermitHolder permitHolder){
+        permitHolderMap.put(permitHolder.getId(), permitHolder);
+        return permitHolderMap;
+    }
+
+    public int getNextID(){
+        Optional<Map.Entry<Integer, PermitHolder>> maxEntry = permitHolderMap.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByKey()
+                );
+
+        return maxEntry.get().getKey() + 1;
     }
 }
