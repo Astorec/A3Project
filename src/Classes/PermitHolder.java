@@ -2,7 +2,7 @@ package Classes;
 
 public class PermitHolder {
     //region Properties
-    private String id;
+    private int id;
 
     private String first_name;
 
@@ -16,7 +16,7 @@ public class PermitHolder {
     //endregion
 
     //region Constructor
-    public PermitHolder(String id, String firstName, String lastName, Address address, Car car, Permit permit) {
+    public PermitHolder(int id, String firstName, String lastName, Address address, Car car, Permit permit) {
         this.id = id;
         this.first_name = firstName;
         this.last_name = lastName;
@@ -27,7 +27,7 @@ public class PermitHolder {
     //endregion
 
     //region Getters
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -51,4 +51,8 @@ public class PermitHolder {
         return permit;
     }
     //endregion
+
+    public String toString(){
+        return "ID: " + id + " Name: " + first_name + " Last Name: " + last_name + " Address: " + address + " Car: " + car + " Permit: " + permit;
+    }
 }

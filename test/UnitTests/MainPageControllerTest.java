@@ -1,21 +1,27 @@
 package UnitTests;
 
+import com.google.common.collect.Table;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.DatePicker;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.TestMethodOrder;
+import javafx.stage.Popup;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.testfx.api.FxAssert;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.base.WindowMatchers;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -38,19 +44,27 @@ class MainPageControllerTest {
     //region Enable/Disable Text Field Tests
     @org.junit.jupiter.api.Test
     @Order(1)
-    public void testIDTextField(FxRobot robot){
+    public void testIDTextField(FxRobot robot) {
+        // Declare the objects to look for at the start of the test
         TextField textField = robot.lookup("#idTextField").query();
         CheckBox checkBox = robot.lookup("#idCheckBox").query();
+
+        // Wait until the ID Checkbox is ticked before continuing
         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
 
+        // Make sure that the text field is Enabled once the checkbox is ticked
         Assertions.assertFalse(textField.isDisabled());
+
+        // Wait again until the Checkbox is unticked before continuing
         await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
+
+        // Make sure that the text field is now Disabled again
         Assertions.assertTrue(textField.isDisabled());
     }
 
     @org.junit.jupiter.api.Test
     @Order(2)
-    public void testFirstNameTextField(FxRobot robot){
+    public void testFirstNameTextField(FxRobot robot) {
         TextField textField = robot.lookup("#firstNameTextField").query();
         CheckBox checkBox = robot.lookup("#firstNameCheckBox").query();
         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
@@ -62,10 +76,10 @@ class MainPageControllerTest {
 
     @org.junit.jupiter.api.Test
     @Order(3)
-    public void testLastNameTextField(FxRobot robot){
+    public void testLastNameTextField(FxRobot robot) {
         TextField textField = robot.lookup("#lastNameTextField").query();
         CheckBox checkBox = robot.lookup("#lastNameCheckBox").query();
-         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
+        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
 
         Assertions.assertFalse(textField.isDisabled());
         await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
@@ -74,21 +88,22 @@ class MainPageControllerTest {
 
     @org.junit.jupiter.api.Test
     @Order(4)
-    public void testAddressTextField(FxRobot robot){
+    public void testAddressTextField(FxRobot robot) {
         TextField textField = robot.lookup("#addressTextField").query();
         CheckBox checkBox = robot.lookup("#addressCheckBox").query();
-         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
+        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
 
         Assertions.assertFalse(textField.isDisabled());
         await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
         Assertions.assertTrue(textField.isDisabled());
     }
+
     @org.junit.jupiter.api.Test
     @Order(5)
-    public void testAreaCodeTextField(FxRobot robot){
+    public void testAreaCodeTextField(FxRobot robot) {
         TextField textField = robot.lookup("#areaCodeTextField").query();
         CheckBox checkBox = robot.lookup("#areaCodeCheckBox").query();
-         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
+        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
 
         Assertions.assertFalse(textField.isDisabled());
         await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
@@ -97,10 +112,10 @@ class MainPageControllerTest {
 
     @org.junit.jupiter.api.Test
     @Order(6)
-    public void testStartDateField(FxRobot robot){
+    public void testStartDateField(FxRobot robot) {
         DatePicker datePicker = robot.lookup("#startDate").query();
         CheckBox checkBox = robot.lookup("#startCheckBox").query();
-         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
+        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
 
         Assertions.assertFalse(datePicker.isDisabled());
         await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
@@ -109,14 +124,111 @@ class MainPageControllerTest {
 
     @org.junit.jupiter.api.Test
     @Order(7)
-    public void testExpiryDateField(FxRobot robot){
+    public void testExpiryDateField(FxRobot robot) {
         DatePicker datePicker = robot.lookup("#endDate").query();
         CheckBox checkBox = robot.lookup("#expiryCheckBox").query();
-         await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
+        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
 
         Assertions.assertFalse(datePicker.isDisabled());
         await().atMost(10, TimeUnit.SECONDS).until(() -> !checkBox.isSelected());
         Assertions.assertTrue(datePicker.isDisabled());
     }
+
+
+    //endregion
+
+    //region Check That Data can be Filtered
+    @org.junit.jupiter.api.Test
+    @Order(8)
+    public void filterItem(FxRobot robot) throws InterruptedException {
+
+        // Properties to look for
+        TableView tableView = robot.lookup("#permitDataTable").query();
+        TextField textField = robot.lookup("#addressTextField").query();
+        CheckBox checkBox = robot.lookup("#addressCheckBox").query();
+        Button apply = robot.lookup("#applyFilterBtn").queryButton();
+
+        // Create an empty list to store the current table list in
+        List<Object> rows = new ArrayList<>();
+
+        // Store the rows in to that list
+        for (Object row : tableView.getItems()) {
+            rows.add(row);
+        }
+
+        // Wait until the Address Checkbox is ticked
+        await().atMost(10, TimeUnit.SECONDS).until(checkBox::isSelected);
+        // Add pass if it enables
+        Assertions.assertFalse(textField.isDisabled());
+        // Wait until the apply button is pressed
+        await().atMost(30, TimeUnit.SECONDS).until(() -> apply.isPressed());
+
+        // Wait until the rows are less than the stored rows
+        await().atMost(30, TimeUnit.SECONDS).until(() -> tableView.getItems().stream().count() < rows.stream().count());
+        // Final assertion to see if the current row size is different from the rows list
+        Assertions.assertTrue(tableView.getItems().stream().count() < rows.stream().count());
+    }
+    //endregion
+
+    //region Remove Items from Table
+    @org.junit.jupiter.api.Test
+    @Order(10)
+    public void removeItem(FxRobot robot) throws InterruptedException {
+        // Properties to look for
+        TabPane tab = robot.lookup("#mainTabPane").query();
+        TableView tableView = robot.lookup("#permitDataTable").query();
+        Button button = robot.lookup("#removeButton").queryButton();
+
+        // Create a blank list that will store the initial data that is stored within the table
+        List<String> initialIds = new ArrayList<>();
+
+        // Create an Observable List that reads in the current Table Columns
+        ObservableList<TableColumn> columns = tableView.getColumns();
+
+        // Loop through each of the Rows within the Table
+        for (Object row : tableView.getItems()) {
+            // On each row, loop through each Column until it gets to the ID Column
+            for (TableColumn column : columns) {
+                // If we are on the ID column, add the value to the initialIds List
+                if (column.getId().equals("idColumn")) {
+                    initialIds.add(column.getCellObservableValue(row).getValue().toString());
+                }
+            }
+        }
+
+        // Wait until the Remove Tab is selected
+        await().atMost(10, TimeUnit.SECONDS).until(() -> tab.getSelectionModel().getSelectedItem().getText().equals("Remove"));
+
+        // Ensure that the Tab changes to the remove tab
+        Assertions.assertTrue(tab.getSelectionModel().getSelectedItem().getText().equals("Remove"));
+
+        // Wait for the Remove Button to be clicked
+        await().atMost(60, TimeUnit.SECONDS).until(() -> button.isPressed());
+
+        // Create a new Text Field object that stores the remove Text field
+        TextField textField = robot.lookup("#removeTextField").query();
+
+        // Wait until the Text field resets itself after removing the item
+        await().atMost(60, TimeUnit.SECONDS).until(() -> textField.getText().equals(""));
+
+        // Create another  blank list to store our new list in
+        List<String> updatedIds = new ArrayList<>();
+
+        // Create another Observable List to store the updated Columns
+        ObservableList<TableColumn> updatedColumns = tableView.getColumns();
+
+        // Same as before and add the items to the new blank list
+        for (Object row : tableView.getItems()) {
+            for (TableColumn column : updatedColumns) {
+                if (column.getId().equals("idColumn")) {
+                    updatedIds.add(column.getCellObservableValue(row).getValue().toString());
+                }
+            }
+        }
+
+        // Ensure that the Updated list is not the same size as the initial list that was created
+        Assertions.assertNotSame(updatedIds.size(), initialIds.size());
+    }
+
     //endregion
 }

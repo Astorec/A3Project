@@ -14,10 +14,12 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 public class LoadPermitData {
-    public HashMap<String, PermitHolder> loadPermitData() throws IOException {
+    public static HashMap<Integer, PermitHolder> loadPermitData() throws IOException {
 
-
+        // Get the file path of the JSON file
         File jsonData = new File("src/Data/PermitData.json");
+
+        // If the File and path doesn't exist, create it
         if(!jsonData.exists()){
             jsonData.getParentFile().mkdirs();
             jsonData.createNewFile();
@@ -42,7 +44,7 @@ public class LoadPermitData {
         PermitHolder[] permitHolders = gson.fromJson(reader, PermitHolder[].class);
 
         // Create a new Hash Map to store the Permit Data
-        HashMap<String, PermitHolder> permitHolderMap = new HashMap<>();
+        HashMap<Integer, PermitHolder> permitHolderMap = new HashMap<Integer, PermitHolder>();
 
         // Loop through each permit in our Array and add it to our Hash Map
         for (PermitHolder ph : permitHolders) {
