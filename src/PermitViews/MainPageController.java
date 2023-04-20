@@ -11,6 +11,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
@@ -24,9 +25,9 @@ public class MainPageController {
     @FXML
     AnchorPane filterAnchorPane;
     @FXML
-    TableView<Map.Entry<Integer, PermitHolder>> permitDataTable;
+    TableView<PermitHolder> permitDataTable;
     @FXML
-    TableColumn<Map.Entry<Integer, PermitHolder>, String> idColumn, fNameColumn, lNameColumn, addressColumn,
+    TableColumn<PermitHolder, String> idColumn, fNameColumn, lNameColumn, addressColumn,
             regColumn, areasColumn, startColumn, expiryColumn;
     @FXML
     Tab filterTab, addTab;
@@ -47,19 +48,19 @@ public class MainPageController {
     //endregion
 
     //region Properties
-    private HashMapOperations hashMapOps;
-    private HashMapQuickSort quickSort;
-    private HashMap<Integer, PermitHolder> permitHolderMap;
-    private ObservableList<Map.Entry<Integer, PermitHolder>> permits;
+    private LinkedListOperations linkedListOPs;
+    private LinkedListQuickSort quickSort;
+    private LinkedList<PermitHolder> permitHolders;
+    private ObservableList<PermitHolder> permits;
     private Boolean isFiltered = false;
-    HashMapQuickSort.sortBy sortBy;
+    LinkedListQuickSort.sortBy sortBy;
     //endregion
 
 
     //region Initialize method
 
     // Initialize is called when the MainView is loaded on the system and executes
-    // the start app Method which contains our calls for setting up the Hash Map
+    // the start app Method which contains our calls for setting up the Linked List
     // and the Table
     @FXML
     public void initialize() {
@@ -146,11 +147,8 @@ public class MainPageController {
         } else {
             String searchString = searchTextField.getText();
 
-            // Search for Data based on our search Text Field
-            List<PermitHolder> indexSearch = new ArrayList<>(permitHolderMap.values());
-
             // Update the Results via the Search Table method
-            searchTable(indexSearch, searchString);
+            searchTable(linkedListOPs.getList(), searchString);
         }
 
     }
@@ -158,8 +156,10 @@ public class MainPageController {
 
     //region Sort Handlers
 
+    // Sort the order of the Quick Sort to Ascend or Descend
     @FXML
     public void setOrder() {
+        // Toggle the Bool depnding on the current state of the button
         if (quickSort.order.equals(true)) {
             quickSort.order = false;
             orderButton.setText("v");
@@ -175,28 +175,61 @@ public class MainPageController {
     //region Add Handler
     @FXML
     public void addPermit() throws IOException {
-        Address address = new Address(addHouseNum.getText(), addStreet.getText(), addTown.getText(), addCounty.getText(),
-                addPostCode.getText());
-        Car car = new Car(addCarReg.getText(), addCarMake.getText(), addCarModel.getText(), addCarColour.getText());
-        Permit permit = new Permit("A1", LocalDate.now(), LocalDate.now().plusYears(1));
-        PermitHolder newPermit = new PermitHolder(hashMapOps.getNextID(), addFirstName.getText(), addLastName.getText(), address, car, permit);
 
-        ObservableList<Map.Entry<Integer, PermitHolder>> updatedPermit = FXCollections.observableArrayList();
-        updatedPermit.addAll(hashMapOps.newPermit(newPermit).entrySet());
-        PermitData.saveNewPermit(newPermit);
-        setupColumns();
+        // Make sure the Text Fields are populated before creating a new permit
+        if (!addHouseNum.getText().equals("") && !addStreet.getText().equals("") && !addTown.getText().equals("")
+                && !addCounty.getText().equals("") && !addPostCode.getText().equals("")
+                && !addCarReg.getText().equals("") && !addCarMake.getText().equals("")
+                && !addCarModel.getText().equals("") && !addCarColour.getText().equals("")
+                && !addFirstName.getText().equals("") && !addLastName.getText().equals("")) {
+
+            // Create the new Address
+            Address address = new Address(addHouseNum.getText(), addStreet.getText(), addTown.getText(), addCounty.getText(),
+                    addPostCode.getText());
+
+            // Create the new car
+            Car car = new Car(addCarReg.getText(), addCarMake.getText(), addCarModel.getText(), addCarColour.getText());
+
+            // Create new Permit
+            Permit permit = new Permit("A1", LocalDate.now(), LocalDate.now().plusYears(1));
+
+            // Crate the new Permit Holder
+            PermitHolder newPermit = new PermitHolder(linkedListOPs.getNextID(), addFirstName.getText(), addLastName.getText(), address, car, permit);
+
+            // Save the Permit Holder to the JSON
+            PermitData.saveNewPermit(newPermit);
+
+            // Update the Permit Holders
+            permitHolders = linkedListOPs.getList();
+
+            // Reset the Add Fields
+            resetAddFields();
+
+            // Update the Table with the new Permit
+            updateTable(FXCollections.observableArrayList(permitHolders));
+
+            // Display message to show permit was added and show its id
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "New Permit Added with ID: " + newPermit.getId(), false);
+
+        } else {
+            CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please fill out all the fields", false);
+        }
+
+
     }
     //endregion
 
     //region TextField Handlers
     @FXML
     private void setRemoveTextBoxWhite() {
+        // If the box border isn't white, set it to white
         if (!removeTextField.getStyle().equals("-fx-text-box-border:  #ffffff;"))
             removeTextField.setStyle("-fx-text-box-border:  #ffffff;");
     }
 
     @FXML
     private void setSearchTextBoxWhite() {
+        // If the box border isn't white, set it to white
         if (!searchTextField.equals("-fx-text-box-border:  #ffffff;"))
             searchTextField.setStyle("-fx-text-box-border:  #ffffff;");
     }
@@ -205,20 +238,21 @@ public class MainPageController {
     //region Dialog Boxes
     @FXML
     private void removeConfirmation() {
+
+        // If the Text Field is empty make the border red
         if (removeTextField.getText().equals("")) {
             removeTextField.setStyle("-fx-text-box-border: #ff0000;");
         } else {
-            ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
-            ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
 
+            // Create a new Alert to confirm if the user wants to remove the Entry
             Optional<ButtonType> result = CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING,
                     "Do you want to remove this entry?", true).showAndWait();
 
+            // If yes, remove the Entry
             if (result.get().getText().equals("Yes")) {
                 removeSelectedRow();
+                // Reset the Text Field
                 removeTextField.clear();
-                if (!isFiltered)
-                    setupColumns();
             }
         }
     }
@@ -227,13 +261,13 @@ public class MainPageController {
     //region Private Methods
     private void startApp() throws IOException {
 
-        // Get the instance of the HashMapOperations class. Sets this up for the rest of this class
-        hashMapOps = HashMapOperations.getInstance();
+        // Get the instance of the Linked List Operations class. Sets this up for the rest of this class
+        linkedListOPs = LinkedListOperations.getInstance();
 
-        // Set the Has Map to the Has Table from the json file which is done via the HashMapOperations
-        permitHolderMap = hashMapOps.getHashMap();
+        // Set the Linked List to the Linked List from the json file which is done via the LinkedListOperations
+        permitHolders = linkedListOPs.getList();
 
-        quickSort = HashMapQuickSort.getInstance();
+        quickSort = LinkedListQuickSort.getInstance();
 
         setupChoiceBox();
 
@@ -246,30 +280,27 @@ public class MainPageController {
         isFiltered = false;
 
         // Make a list of Items that is used for the JavaFX implementation and populate it with the items
-        // from our Hash Map
-        permits = FXCollections.observableArrayList(permitHolderMap.entrySet());
+        // from our Linked List
+        permits = FXCollections.observableArrayList(permitHolders);
 
         // Set the data table to read in the permit list
         permitDataTable.setItems(permits);
 
-        // Apply the values from our Hash Map pass-through to all the columns on the table
-        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue().getId()).asString());
-        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
-        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
-        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
-        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getCar().sendRegNum()));
-        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
-        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
-        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
+        // Apply the values from our Linked List pass-through to all the columns on the table
+        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getId()).asString());
+        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFirst_name()));
+        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getLast_name()));
+        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAddress().toString()));
+        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCar().sendRegNum()));
+        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendAreaCodes()));
+        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendStartDate()));
+        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendExpiryDate()));
     }
 
     // Filter Data
     private void filterData() {
-
-        permits = FXCollections.observableArrayList(permitHolderMap.entrySet());
         // Create a new FilterData object
         FilterData filterData = new FilterData();
-
 
         if (firstNameCheckBox.isSelected() && firstNameTextField.getText().equals("")) {
             CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please enter a valid First Name", false);
@@ -281,45 +312,51 @@ public class MainPageController {
             CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.WARNING, "Please enter a valid Area Code", false);
         } else {
             // Set the filterData values
-            //   filterData.setID(Integer.parseInt(idTextField.getText()));
             filterData.setFirstName(firstNameTextField.getText());
             filterData.setLastName(lastNameTextField.getText());
             filterData.setAddress(addressTextField.getText());
             filterData.setAreaCode(areaCodeTextField.getText());
-            //   filterData.setStartDate(startDate.getValue());
-            //       filterData.setExpiryDate(endDate.getValue());
 
             // Filter the data
-            List<Map.Entry<Integer, PermitHolder>> filteredPermitHolders = filterData.filter(permitHolderMap.entrySet())
-                    .collect(Collectors.toList());
-            ObservableList<Map.Entry<Integer, PermitHolder>> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
+            List<PermitHolder> filteredPermitHolders = filterData.filter(permitHolders)
+                    .collect(Collectors.toCollection(LinkedList::new));
+            ObservableList<PermitHolder> filteredPermits = FXCollections.observableArrayList(filteredPermitHolders);
+
             // Set up the table columns
-            updateTable(filteredPermits);
+            permitDataTable.setItems(filteredPermits);
+            idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getId()).asString());
+            fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFirst_name()));
+            lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getLast_name()));
+            addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAddress().toString()));
+            regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCar().sendRegNum()));
+            areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendAreaCodes()));
+            startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendStartDate()));
+            expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendExpiryDate()));
 
             // Set the isFiltered flag
             isFiltered = true;
-
         }
     }
 
+
     // Update Table based on Filter or Search Results
-    private void updateTable(ObservableList<Map.Entry<Integer, PermitHolder>> updatedData) {
+    private void updateTable(ObservableList<PermitHolder> updatedData) {
         // Make a list of Items that is used for the JavaFX implementation and populate it with the items
-        // from our Hash Map
+        // from our Linked List
         permits = updatedData;
 
         // Set the data table to read in the permit list
         permitDataTable.setItems(permits);
 
-        // Apply the values from our Hash Map pass-through to all the columns on the table
-        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue().getId()).asString());
-        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
-        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
-        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
-        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getCar().sendRegNum()));
-        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
-        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
-        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
+        // Apply the values from our Linked List pass-through to all the columns on the table
+        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getId()).asString());
+        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFirst_name()));
+        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getLast_name()));
+        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAddress().toString()));
+        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCar().sendRegNum()));
+        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendAreaCodes()));
+        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendStartDate()));
+        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendExpiryDate()));
     }
 
 
@@ -329,42 +366,39 @@ public class MainPageController {
                 .filter(ph -> ph.toString().contains(searchString))
                 .toList();
 
-        // Get the filtered results and pass them to a Hash Set
-        Set<PermitHolder> uniquePermitHolders = new HashSet<>(filteredResults);
+        // Convert the Filtered PermitHolder objects to a new Linked List entries and add them to the results Observable List
+        LinkedList<PermitHolder> returnResults = new LinkedList<>();
 
-        // Convert the unique PermitHolder objects to Map entries and add them to the results map
-        HashMap<Integer, PermitHolder> returnResults = new HashMap<>();
-
-        for (PermitHolder permitHolder : uniquePermitHolders) {
+        for (PermitHolder permitHolder : filteredResults) {
             int id = permitHolder.getId();
-            returnResults.put(id, permitHolder);
+            returnResults.add(permitHolder);
         }
 
-        ObservableList<Map.Entry<Integer, PermitHolder>> searchResults = FXCollections.observableArrayList();
-        searchResults.addAll(returnResults.entrySet());
+        ObservableList<PermitHolder> searchResults = FXCollections.observableArrayList();
+        searchResults.addAll(returnResults);
 
         // Set the data table to read in the permit list
         permitDataTable.setItems(searchResults);
 
-        // Apply the values from our Hash Map pass-through to all the columns on the table
-        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getValue().getId()).asString());
-        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getFirst_name()));
-        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getLast_name()));
-        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getAddress().toString()));
-        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getCar().sendRegNum()));
-        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendAreaCodes()));
-        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendStartDate()));
-        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValue().getPermit().sendExpiryDate()));
+        // Apply the values from our Linked List pass-through to all the columns on the table
+        idColumn.setCellValueFactory(param -> new SimpleIntegerProperty(param.getValue().getId()).asString());
+        fNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFirst_name()));
+        lNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getLast_name()));
+        addressColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAddress().toString()));
+        regColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCar().sendRegNum()));
+        areasColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendAreaCodes()));
+        startColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendStartDate()));
+        expiryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getPermit().sendExpiryDate()));
     }
 
 
     private void sortData() {
         // Sort the Table's data based on the current sortBy enum value
-        Map<Integer, PermitHolder> sortedMap = quickSort.quickSort(permitHolderMap, 1, permitHolderMap.size() - 1, sortBy);
+        LinkedList<PermitHolder> sortedList = quickSort.quickSort(permitHolders, 0, permitHolders.size() - 1, sortBy);
 
-        // store the Map as an Observable list so that Java FX can read it
-        ObservableList<Map.Entry<Integer, PermitHolder>> sortResult = FXCollections.observableArrayList();
-        sortResult.addAll(sortedMap.entrySet());
+        // store the Linked List as an Observable list so that Java FX can read it
+        ObservableList<PermitHolder> sortResult = FXCollections.observableArrayList();
+        sortResult.addAll(sortedList);
 
         // Update the table
         permitDataTable.getItems().clear();
@@ -377,7 +411,7 @@ public class MainPageController {
         permitDataTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) ->
         {
             if (newVal != null) {
-                removeTextField.setText(String.valueOf(newVal.getKey()));
+                removeTextField.setText(String.valueOf(newVal.getId()));
             }
         });
 
@@ -387,33 +421,33 @@ public class MainPageController {
 
             switch (idx.intValue()) {
                 case 1 -> {
-                    sortBy = HashMapQuickSort.sortBy.FIRST_NAME;
+                    sortBy = LinkedListQuickSort.sortBy.FIRST_NAME;
                     sortData();
                 }
 
                 case 2 -> {
-                    sortBy = HashMapQuickSort.sortBy.LAST_NAME;
+                    sortBy = LinkedListQuickSort.sortBy.LAST_NAME;
                     sortData();
                 }
 
                 case 3 -> {
-                    sortBy = HashMapQuickSort.sortBy.ADDRESS;
+                    sortBy = LinkedListQuickSort.sortBy.ADDRESS;
                     sortData();
                 }
                 case 4 -> {
-                    sortBy = HashMapQuickSort.sortBy.CAR;
+                    sortBy = LinkedListQuickSort.sortBy.CAR;
                     sortData();
                 }
                 case 5 -> {
-                    sortBy = HashMapQuickSort.sortBy.START_DATE;
+                    sortBy = LinkedListQuickSort.sortBy.START_DATE;
                     sortData();
                 }
                 case 6 -> {
-                    sortBy = HashMapQuickSort.sortBy.END_DATE;
+                    sortBy = LinkedListQuickSort.sortBy.END_DATE;
                     sortData();
                 }
                 default -> {
-                    sortBy = HashMapQuickSort.sortBy.ID;
+                    sortBy = LinkedListQuickSort.sortBy.ID;
                     sortData();
                 }
             }
@@ -430,8 +464,27 @@ public class MainPageController {
         sortByChoiceBox.getItems().add("Start Date");
         sortByChoiceBox.getItems().add("Expiry Date");
         sortByChoiceBox.getSelectionModel().select(0);
+        sortBy = LinkedListQuickSort.sortBy.ID;
 
-        sortBy = HashMapQuickSort.sortBy.ID;
+        addArea.getItems().add("A1");
+        addArea.getItems().add("A2");
+        addArea.getItems().add("A3");
+        addArea.getSelectionModel().select(0);
+    }
+
+    // method that resets all the Text Fields under the Add Tab
+    private void resetAddFields() {
+        addHouseNum.clear();
+        addStreet.clear();
+        addTown.clear();
+        addCounty.clear();
+        addPostCode.clear();
+        addCarReg.clear();
+        addCarMake.clear();
+        addCarModel.clear();
+        addCarColour.clear();
+        addFirstName.clear();
+        addLastName.clear();
     }
 
 
@@ -441,23 +494,34 @@ public class MainPageController {
         TableOperations tableOperations = new TableOperations();
 
         String idToRemove = removeTextField.getText();
+        Boolean notFound = true;
         try {
-            if (hashMapOps.getHashMap().get(Integer.parseInt(removeTextField.getText())) == null) {
-                // Display an error message if the ID doesn't exist in the Hash Map
+            Iterator<PermitHolder> iterator = permitHolders.iterator();
+
+            while (iterator.hasNext()) {
+                if ((iterator.next().getId() == Integer.parseInt(idToRemove))) {
+                    // Remove the Item from the Observable Table and the Linked List from the Table Operations class
+                    iterator.remove();
+                    PermitData.removePermit(Integer.parseInt(idToRemove));
+
+                    // Get our newly updated Linked List
+                    permitHolders = linkedListOPs.getList();
+                    // Reset our text field
+                    removeTextField.clear();
+
+                    linkedListOPs.updateList(permitHolders);
+
+                    if (!isFiltered) {
+                        ObservableList<PermitHolder> updatedList = FXCollections.observableArrayList(permitHolders);
+                        updateTable(updatedList);
+                        notFound = false;
+                    }
+                }
+            }
+            if (notFound) {
+                // Display an error message if the ID doesn't exist in the Linked List
                 CreateAlerts.getInstance().alertBuilder(CreateAlerts.AlertType.ERROR,
-                        "ID not found in Hash Map", false);
-            } else {
-                // Remove the Item from the Observable Table and the Hash map from the Table Operations class
-                PermitData.removePermit(Integer.parseInt(idToRemove));
-                permits = tableOperations.removePermit(Integer.parseInt(idToRemove), permits);
-
-                // Get our newly updated hashmap
-                permitHolderMap = hashMapOps.getHashMap();
-                // Reset our text field
-                removeTextField.clear();
-
-                hashMapOps.updateHashMap(permitHolderMap);
-
+                        "ID not found in Linked List", false);
             }
 
         } catch (IOException e) {

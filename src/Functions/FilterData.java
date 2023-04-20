@@ -3,8 +3,8 @@ package Functions;
 import Classes.PermitHolder;
 
 import java.time.LocalDate;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FilterData {
@@ -40,12 +40,11 @@ public class FilterData {
 
     //region Methods
 
-    // Fitters teh current Permit Holder Map based on provided filter data
-    public Stream<Entry<Integer, PermitHolder>> filter(Set<Entry<Integer, PermitHolder>> entries) {
+    // Filters the current Permit Holder list based on provided filter data
+    public Stream<PermitHolder> filter(LinkedList<PermitHolder> permitHolders) {
 
-        // Create a stream object from the passed in entries
-        return entries.stream().filter(entry -> {
-            PermitHolder permit = entry.getValue(); // Check that the permit holder is from the current entry
+        // Create a stream object from the passed in linked list
+        return permitHolders.stream().filter(permit -> {
             boolean match = id < 1 || permit.getId() == id; // Check that the id matches the object ID
 
             // Checking if the first name instance variable is set, and if so, if it matches the first name in the PermitHolder object
@@ -67,5 +66,11 @@ public class FilterData {
             return match; // Return true or false if the data is matched
         });
     }
+
+    // Filters the current Permit Holder list based on provided filter data and returns an observable list
+    public LinkedList<PermitHolder> filterToLinkedList(LinkedList<PermitHolder> permitHolders) {
+        return filter(permitHolders).collect(Collectors.toCollection(LinkedList::new));
+    }
+
     //endregion
 }

@@ -9,16 +9,14 @@ import com.google.gson.stream.JsonWriter;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedList;
 
 public class PermitData {
 
     // Get the file path of the JSON file
     private static File jsonData = new File("src/Data/PermitData.json");
 
-    public static HashMap<Integer, PermitHolder> loadPermitData() throws IOException {
-
+    public static LinkedList<PermitHolder> loadPermitData() throws IOException {
 
         // If the File and path doesn't exist, create it
         if (!jsonData.exists()) {
@@ -34,21 +32,14 @@ public class PermitData {
         // Read in the Json File from src/Data
         BufferedReader reader = new BufferedReader(new FileReader("src/Data/PermitData.json"));
 
-        // Apply each read in line to an array of Permit Holders
-        PermitHolder[] permitHolders = gson.fromJson(reader, PermitHolder[].class);
-
-        // Create a new Hash Map to store the Permit Data
-        HashMap<Integer, PermitHolder> permitHolderMap = new HashMap<>();
-
-        // Loop through each permit in our Array and add it to our Hash Map
-        for (PermitHolder ph : permitHolders) {
-            permitHolderMap.put(ph.getId(), ph);
-        }
+        // Apply each read in line to a List of Permit Holders
+        Type permitHolderListType = new TypeToken<LinkedList<PermitHolder>>(){}.getType();
+        LinkedList<PermitHolder> permitHolders = gson.fromJson(reader, permitHolderListType);
 
         // Close the Buffer Reader once we are done with it
         reader.close();
 
-        return permitHolderMap;
+        return permitHolders;
     }
 
     public static void saveNewPermit(PermitHolder permitHolder) throws IOException {
@@ -57,35 +48,29 @@ public class PermitData {
 
         // Read the existing JSON file into a String variable
         BufferedReader reader = new BufferedReader(new FileReader("src/Data/PermitData.json"));
-        // Apply each read in line to an array of Permit Holders
-        PermitHolder[] permitHolders = gson.fromJson(reader, PermitHolder[].class);
 
-        // Create a new Hash Map to store the Permit Data
-        HashMap<Integer, PermitHolder> permitHolderMap = new HashMap<>();
+        // Apply each read in line to a List of Permit Holders
+        Type permitHolderListType = new TypeToken<LinkedList<PermitHolder>>(){}.getType();
+        LinkedList<PermitHolder> permitHolders = gson.fromJson(reader, permitHolderListType);
 
-        // Loop through each permit in our Array and add it to our Hash Map
-        for (PermitHolder ph : permitHolders) {
-            permitHolderMap.put(ph.getId(), ph);
-        }
-
-        // Add the new PermitHolder object to the JSON object
-        permitHolderMap.put(permitHolder.getId(), permitHolder);
+        // Add the new PermitHolder object to the list of Permit Holders
+        permitHolders.add(permitHolder);
 
         // Write the updated JSON object to the same JSON file
         try (Writer writer = new FileWriter(jsonData)) {
-            JsonArray jsonArray = new JsonArray();
-            permitHolderMap.values().forEach(ph -> jsonArray.add(gson.toJsonTree(ph)));
-            gson.toJson(jsonArray, writer);
+            gson.toJson(permitHolders, writer);
         }
 
         reader.close();
+
+        LinkedListOperations.getInstance().updateList(permitHolders);
     }
 
     public static void removePermit(int permitId) {
         Gson gson = gson();
-        Type type = new TypeToken<List<PermitHolder>>(){}.getType();
+        Type type = new TypeToken<LinkedList<PermitHolder>>(){}.getType();
         try (Reader reader = new FileReader(jsonData)) {
-            List<PermitHolder> permits = gson.fromJson(reader, type);
+            LinkedList<PermitHolder> permits = gson.fromJson(reader, type);
             permits.removeIf(permit -> permit.getId() == permitId);
             String json = gson.toJson(permits);
             try (Writer writer = new FileWriter(jsonData)) {
@@ -110,7 +95,7 @@ public class PermitData {
 
                     @Override
                     public LocalDate read(JsonReader in) throws IOException {
-                        JsonObject jsonObject = new JsonParser().parse(in).getAsJsonObject();
+                        JsonObject jsonObject =  JsonParser.parseReader(in).getAsJsonObject();
                         int year = jsonObject.get("year").getAsInt();
                         int month = jsonObject.get("month").getAsInt();
                         int day = jsonObject.get("day").getAsInt();
